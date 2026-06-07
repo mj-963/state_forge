@@ -1,6 +1,6 @@
 name: state_forge_shared_preferences
 description: SharedPreferences persistence adapter for StateForge stores.
-version: 0.1.2
+version: 0.1.1
 homepage: https://github.com/mj-963/state_forge
 repository: https://github.com/mj-963/state_forge
 issue_tracker: https://github.com/mj-963/state_forge/issues
