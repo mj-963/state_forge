@@ -10,7 +10,7 @@ Hive, Drift, encrypted storage, files, or cloud sync.
 
 ```yaml
 dependencies:
-  state_forge: ^0.1.3
+  state_forge: ^0.1.2
   state_forge_shared_preferences: ^0.1.1
 ```
 

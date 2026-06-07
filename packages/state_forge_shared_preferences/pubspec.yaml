@@ -20,7 +20,7 @@ dependencies:
   flutter:
     sdk: flutter
   shared_preferences: '>=2.3.3 <4.0.0'
-  state_forge: ^0.1.3
+  state_forge: ^0.1.2
 
 dev_dependencies:
   flutter_lints: ^5.0.0
