@@ -2,7 +2,7 @@
 
 [![Build Status](https://img.shields.io/badge/build-passing-brightgreen.svg)](https://github.com/mj-963/state_forge)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Pub Version](https://img.shields.io/badge/pub-v0.1.5-blue.svg)](https://pub.dev/packages/state_forge)
+[![Pub Version](https://img.shields.io/badge/pub-v0.1.6-blue.svg)](https://pub.dev/packages/state_forge)
 [![Selectors](https://img.shields.io/badge/context.select-tested-brightgreen.svg)](https://github.com/mj-963/state_forge/tree/main/test)
 
 **Structured Flutter state management. Zero boilerplate. Zero code generation. Zero ceremony.**
@@ -11,14 +11,33 @@
 
 ---
 
-## The Problem With Every Other Option
+## Why StateForge
 
-Flutter state management forces you into a false choice:
+StateForge is for Flutter features that should stay small without becoming
+implicit or hard to test.
 
-- **BLoC / Riverpod** — proper architecture, but 6+ files per feature, mandatory code generation, and the mental overhead of events → handlers → states. As the Bloc team often highlights, *the additional boilerplate is a trade-off for unparalleled predictability and scalability.*
-- **GetX** — low ceremony, but global singleton chaos, untestable in practice, and a maintenance crisis you don't want to inherit.
+BLoC emphasizes explicit event-driven architecture. Riverpod emphasizes provider
+composition and strong dependency modeling. Provider keeps close to Flutter's
+widget tree. StateForge focuses on a narrower goal:
 
-**StateForge refuses this tradeoff.** You get BLoC's predictability and GetX's simplicity — in one file, with no code generator in sight.
+> Build a feature in one or two files, with direct method calls, predictable
+> state transitions, scoped rebuilds, and first-class one-time effects.
+
+No event classes. No generated state classes. No `build_runner` step required.
+
+## Mental Model
+
+```text
+Widget
+  │ reads / selects / listens
+  ▼
+Store
+  ├─ state  ──> rebuild UI
+  └─ effect ──> navigation, snackbars, analytics
+  │
+  ▼
+Repository / API
+```
 
 ---
 
@@ -59,20 +78,21 @@ class LoginPage extends StoreWidget<LoginStore, AsyncState<User>> {
 }
 ```
 
-That is the complete feature. **2 files. No events class. No states class. No build_runner step. No DI registration file.**
+That is the complete feature. **2 files. No event class. No generated state
+class. No `build_runner` step.**
 
 <details>
 <summary>See the BLoC equivalent for comparison</summary>
 
-The same feature in BLoC requires:
+Depending on team conventions, the same feature in BLoC often uses:
 - `login_event.dart` — LoginRequested event class
-- `login_state.dart` — LoginInitial, LoginLoading, LoginSuccess, LoginFailure (+ freezed annotations)
+- `login_state.dart` — LoginInitial, LoginLoading, LoginSuccess, LoginFailure
 - `login_bloc.dart` — Bloc class + `on<LoginRequested>()` handler
-- `injection.dart` — Register bloc and repository
+- Optional DI setup — register bloc and repository
 - `login_page.dart` — `BlocProvider` + `BlocBuilder` + `BlocListener`
-- Run: `dart run build_runner build` and wait 2–5 minutes
 
-**6+ files. A code generation step. And you haven't written a single line of business logic yet.**
+StateForge compresses that shape when you want direct command methods instead of
+an event pipeline.
 
 </details>
 
@@ -83,7 +103,7 @@ The same feature in BLoC requires:
 **1. Add to pubspec.yaml**
 ```yaml
 dependencies:
-  state_forge: ^0.1.5
+  state_forge: ^0.1.6
 ```
 
 **2. Define your Store**
@@ -171,6 +191,32 @@ state.maybeWhen(
 );
 ```
 
+### Selective Rebuilds — ForgeSelector
+
+When a global store (cart, auth, profile) changes, only the widgets that care
+should rebuild. `ForgeSelector` lets you subscribe to a slice of state and
+rebuild only when that selected value changes.
+
+```dart
+// Only rebuilds when item count changes — not on price updates, not on item edits
+ForgeSelector<CartStore, CartState, int>(
+  select: (state) => state.itemCount,
+  builder: (context, count, store) => CartBadge(count: count),
+)
+
+// Multi-field selection via Dart Records (structural equality for free)
+ForgeSelector<CartStore, CartState, (int, double)>(
+  select: (state) => (state.itemCount, state.total),
+  builder: (context, record, store) {
+    final (count, total) = record;
+    return CartSummary(count: count, total: total);
+  },
+)
+```
+
+The `context.select<T, S, R>()` extension follows the same selected-value
+semantics for inline widget code.
+
 ### Side Effects — First Class
 
 Side effects (navigation, snackbars, analytics) are not UI state — they should never live in your state class. StateForge provides a dedicated `effect()` stream so you never have to hack your state to trigger a one-time event.
@@ -196,30 +242,6 @@ ForgeListener<CartStore, CartEffect>(
   child: const CartPage(),
 )
 ```
-
-### Surgical Rebuilds — ForgeSelector
-
-When a global store (cart, auth, profile) changes, only the widgets that care should rebuild. `ForgeSelector` lets you subscribe to a slice of state — rebuild only when that slice changes.
-
-```dart
-// Only rebuilds when item count changes — not on price updates, not on item edits
-ForgeSelector<CartStore, CartState, int>(
-  select: (state) => state.itemCount,
-  builder: (context, count, store) => CartBadge(count: count),
-)
-
-// Multi-field selection via Dart Records (structural equality for free)
-ForgeSelector<CartStore, CartState, (int, double)>(
-  select: (state) => (state.itemCount, state.total),
-  builder: (context, record, store) {
-    final (count, total) = record;
-    return CartSummary(count: count, total: total);
-  },
-)
-```
-
-The `context.select<T, S, R>()` extension follows the same selected-value
-semantics for inline widget code.
 
 ### Scoped Lifecycle — Stores Die When Screens Die
 
@@ -307,7 +329,8 @@ If you need manual control, you can still call `hydrate()`, `persist()`, and
 
 ### CompositedStore — Clean Cross-Store Dependencies
 
-No GetIt. No service locator. No global singletons. Cross-store dependencies are declared at the widget level and injected via constructor — fully testable.
+Cross-store dependencies are declared at the widget level and injected via
+constructor, which keeps store relationships visible and easy to test.
 
 ```dart
 // CartStore needs to know who's logged in
@@ -447,23 +470,26 @@ through `InheritedModel` for scoped widget-tree access.
 - **O(1)** store lookup from any descendant widget
 - **O(1)** notification dispatch
 - **Frame coalescing** — if a store emits multiple times between frames, widgets rebuild exactly once
-- **Surgical rebuilds** — `ForgeSelector` ensures only widgets that depend on changed data rebuild
-- **Confirmed 100% surgical efficiency** in stress tests: 5,000+ item lists at 60Hz with zero unnecessary rebuilds
+- **Selective rebuilds** — `ForgeSelector` rebuilds only when the selected value changes
+- Benchmark scenarios live in [`benchmark_suite/`](/benchmark_suite/) and focused rebuild behavior is covered by tests
 
 ---
 
 ## Comparison
 
-| | StateForge | BLoC 9.0 | Riverpod 3.0 | GetX |
+This table is about default ergonomics and package focus, not a claim that other
+tools cannot model the same workflows.
+
+| | StateForge | BLoC | Riverpod | Provider |
 |---|---|---|---|---|
-| Files per feature | **1–2** | 6+ | 3–4 | 1–2 |
-| Code generation | **None** | Required (freezed) | Required (@riverpod) | None |
-| Testability | ✅ No widget pump | ✅ (bloc_test) | ✅ (ProviderContainer) | ❌ |
-| Built-in async handling | ✅ AsyncState | ❌ | ❌ | ✅ |
-| Side effects | ✅ First-class | 〜 Hacky | 〜 Lifecycle methods | ✅ |
-| Auto-dispose | ✅ Widget tree | ✅ | ✅ (autoDispose) | ❌ |
-| Learning curve | **Low** | High | Medium | Low |
-| Scales to enterprise | ✅ | ✅ | ✅ | ❌ |
+| Primary unit | Store | Bloc / Cubit | Provider | ChangeNotifier / value |
+| Code generation required | **No** | No | No | No |
+| Generated APIs available | No | Optional via ecosystem | Optional | No |
+| Async state helper | ✅ `AsyncState` | Common via custom states | ✅ `AsyncValue` | Custom |
+| One-time effects | ✅ Dedicated effect stream | Common via listener patterns | Common via listeners/ref | Custom |
+| Selective rebuilds | ✅ `ForgeSelector`, `context.select` | ✅ `BlocSelector` | ✅ `select` | ✅ `Selector` |
+| Pure Dart core | ✅ `state_forge_core` | ✅ | ✅ | 〜 Flutter-oriented |
+| Typical feature shape | Direct store methods | Event/command handlers | Provider graph | Notifier methods |
 
 Need to pass a store to a Flutter API that requires `Listenable`? Use the
 interop adapter:
@@ -476,16 +502,16 @@ final listenable = counterStore.asListenable();
 
 ## Migrating
 
-- **[From BLoC →](/doc/migration/from_bloc.md)** Remove the ceremony. Keep the predictability.
-- **[From Riverpod →](/doc/migration/from_riverpod.md)** Kill the build_runner. Keep the safety.
-- **[From GetX →](/doc/migration/from_getx.md)** Keep the simplicity. Add the architecture.
+- **[From BLoC →](/doc/migration/from_bloc.md)** Move from event handlers to direct store methods.
+- **[From Riverpod →](/doc/migration/from_riverpod.md)** Move feature state into explicit store objects.
+- **[From GetX →](/doc/migration/from_getx.md)** Keep low ceremony while making dependencies explicit.
 
 ---
 
 ## Resources
 
 - **[Complete User Guide](/doc/README.md)** — Deep dive into every feature
-- **[Performance Benchmark Suite](/benchmark_suite/)** — Clinical rebuild efficiency data
+- **[Performance Benchmark Suite](/benchmark_suite/)** — Rebuild and stress-test scenarios
 - **[Example App](/example/)** — Full e-commerce app: auth + products + cart
 
 ---
@@ -497,5 +523,5 @@ StateForge is open-source under the **MIT License**.
 ---
 
 <p align="center">
-  <i>Built for Flutter developers who believe "accept the boilerplate" was never the right answer.</i>
+  <i>Built for Flutter developers who want small feature files without giving up predictable state transitions.</i>
 </p>

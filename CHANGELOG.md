@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file.
 
+## 0.1.6 - 2026-06-07
+
+### Changed
+- Refined README positioning to use more precise, less adversarial comparison
+  language.
+- Moved selective rebuild guidance higher in the README and added a simple
+  architecture diagram.
+- Replaced unsupported performance wording with references to benchmark and
+  test coverage.
+
 ## 0.1.5 - 2026-06-07
 
 ### Fixed
