@@ -6,6 +6,9 @@
 
 - Updated installation examples and dependency constraints for the latest
   `state_forge` patch release.
+- Raised the `shared_preferences` lower bound to the first version that
+  provides `SharedPreferencesAsync`.
+- Added a package example and library documentation for pub.dev scoring.
 
 ## 0.1.1 - 2026-06-07
 

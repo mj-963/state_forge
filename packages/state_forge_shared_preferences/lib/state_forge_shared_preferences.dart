@@ -1,3 +1,9 @@
+/// SharedPreferences persistence support for StateForge stores.
+///
+/// Import this library to configure [StateForge.storage] with
+/// [SharedPreferencesForgeStorage] for lightweight JSON persistence.
+library;
+
 import 'dart:convert';
 
 import 'package:shared_preferences/shared_preferences.dart';
