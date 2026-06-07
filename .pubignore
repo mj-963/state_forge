@@ -5,6 +5,7 @@ pubspec_overrides.yaml
 *.lock
 
 2026-*.txt
+STATEFORGE.md
 benchmark_suite/
 packages/
 state_forge_devtools/

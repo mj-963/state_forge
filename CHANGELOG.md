@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## 0.1.4 - 2026-06-07
+
+### Fixed
+- Removed internal planning notes from the repository and published package
+  archive.
+
 ## 0.1.3 - 2026-06-07
 
 ### Fixed
