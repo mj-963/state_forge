@@ -7,16 +7,18 @@ import 'features/discovery/discovery_page.dart';
 import 'features/discovery/discovery_store.dart';
 
 /// ForgeMovies: A real-world stress test application for StateForge.
-/// 
+///
 /// This app demonstrates:
 /// 1. Global Stores (Auth, Cart) provided at the root.
 /// 2. Feature-specific, paginated stores (Discovery).
 /// 3. AsyncState pattern matching for clean UI.
 /// 4. Global Error Handling and Debug Mode.
-void main() {
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
   // 1. Initialize the StateForge system
   StateForge.init();
-  
+
   // 2. Enable console logging of state transitions
   StateForge.debugMode = true;
 
@@ -24,6 +26,8 @@ void main() {
   StateForge.onError = (error, stack) {
     debugPrint('Global Error Caught: $error');
   };
+
+  StateForge.storage = InMemoryForgeStorage();
 
   final apiClient = ApiClient();
 
@@ -34,11 +38,33 @@ void main() {
         StoreProvider<AuthStore>(create: (_) => AuthStore()),
         StoreProvider<CartStore>(create: (_) => CartStore()),
         // We load the initial discovery data immediately
-        StoreProvider<DiscoveryStore>(create: (_) => DiscoveryStore(apiClient)..load()),
+        StoreProvider<DiscoveryStore>(
+          create: (_) => DiscoveryStore(apiClient)..load(),
+        ),
       ],
       child: const MovieApp(),
     ),
   );
+}
+
+class InMemoryForgeStorage implements ForgeStorageAdapter {
+  final _data = <String, Map<String, dynamic>>{};
+
+  @override
+  Future<void> delete(String key) async {
+    _data.remove(key);
+  }
+
+  @override
+  Future<Map<String, dynamic>?> read(String key) async {
+    final value = _data[key];
+    return value == null ? null : Map<String, dynamic>.from(value);
+  }
+
+  @override
+  Future<void> write(String key, Map<String, dynamic> data) async {
+    _data[key] = Map<String, dynamic>.from(data);
+  }
 }
 
 class MovieApp extends StatelessWidget {
@@ -49,7 +75,10 @@ class MovieApp extends StatelessWidget {
     return MaterialApp(
       title: 'ForgeMovies',
       theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.red, brightness: Brightness.dark),
+        colorScheme: ColorScheme.fromSeed(
+          seedColor: Colors.red,
+          brightness: Brightness.dark,
+        ),
         useMaterial3: true,
       ),
       home: const LoginPage(),
@@ -70,7 +99,7 @@ class _LoginPageState extends State<LoginPage> with ForgeEffectListener {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    
+
     // Listen to the 'login_success' string effect to trigger navigation
     listenToEffect<AuthStore, String>((effect) {
       if (effect == 'login_success') {
@@ -94,15 +123,21 @@ class _LoginPageState extends State<LoginPage> with ForgeEffectListener {
                 children: [
                   const Icon(Icons.movie_filter, size: 80, color: Colors.red),
                   const SizedBox(height: 16),
-                  const Text('ForgeMovies', style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold)),
+                  const Text(
+                    'ForgeMovies',
+                    style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold),
+                  ),
                   const SizedBox(height: 32),
-                  
+
                   // Use functional pattern matching for the login state
                   state.maybeWhen(
-                    failure: (e) => Text(e.toString(), style: const TextStyle(color: Colors.red)),
+                    failure: (e) => Text(
+                      e.toString(),
+                      style: const TextStyle(color: Colors.red),
+                    ),
                     orElse: () => const Text('Please login to continue'),
                   ),
-                  
+
                   const SizedBox(height: 16),
                   SizedBox(
                     width: double.infinity,

@@ -33,6 +33,8 @@ abstract interface class StateForgeDiagnostics {
 
 /// Global configuration and hooks for the StateForge library.
 class StateForge {
+  StateForge._();
+
   /// Whether to print debug information (transitions, effects) to the console.
   ///
   /// Enabled only when Dart assertions are enabled, so it is automatically

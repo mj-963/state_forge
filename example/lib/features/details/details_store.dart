@@ -12,9 +12,13 @@ class DetailsStore extends Store<AsyncState<ShowDetails>> {
 
   Future<void> load() async {
     emit(const Loading());
-    await guard(() async {
-      final details = await _api.getShowDetails(showId);
-      emit(Success(details));
-    });
+    try {
+      await guard(() async {
+        final details = await _api.getShowDetails(showId);
+        emit(Success(details));
+      });
+    } catch (error) {
+      emit(Failure(error));
+    }
   }
 }

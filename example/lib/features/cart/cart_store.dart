@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:state_forge/state_forge.dart';
 import '../../core/models/show.dart';
 
@@ -8,8 +10,11 @@ class CartState {
   bool contains(int id) => items.any((i) => i.id == id);
 }
 
-class CartStore extends Store<CartState> with UndoableStore<CartState>, PersistableStore<CartState> {
-  CartStore() : super(const CartState());
+class CartStore extends Store<CartState>
+    with UndoableStore<CartState>, PersistableStore<CartState> {
+  CartStore() : super(const CartState()) {
+    unawaited(hydrateOnCreate(debounce: const Duration(milliseconds: 250)));
+  }
 
   @override
   String get storageKey => 'wishlist';
@@ -24,17 +29,23 @@ class CartStore extends Store<CartState> with UndoableStore<CartState>, Persista
       effect('Added ${show.name} to Wishlist');
     }
     emit(CartState(items: newItems));
-    persist();
   }
 
   @override
   CartState fromJson(Map<String, dynamic> json) {
-    // Basic implementation for demo
-    return const CartState();
+    final rawItems = json['items'];
+    if (rawItems is! List) return const CartState();
+
+    return CartState(
+      items: rawItems
+          .whereType<Map>()
+          .map((item) => Show.fromJson(Map<String, dynamic>.from(item)))
+          .toList(),
+    );
   }
 
   @override
   Map<String, dynamic> toJson(CartState state) {
-    return {};
+    return {'items': state.items.map((show) => show.toJson()).toList()};
   }
 }

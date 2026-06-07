@@ -16,19 +16,35 @@ class Show {
   final List<String> genres;
 
   factory Show.fromJson(Map<String, dynamic> json) {
+    final image = json['image'];
     return Show(
       id: json['id'],
       name: json['name'] ?? 'Unknown',
       summary: (json['summary'] ?? '').replaceAll(RegExp(r'<[^>]*>'), ''),
-      image: json['image']?['medium'],
+      image: image is Map ? image['medium'] : image as String?,
       rating: (json['rating']?['average'] ?? 0.0).toDouble(),
       genres: List<String>.from(json['genres'] ?? []),
     );
   }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'name': name,
+      'summary': summary,
+      'image': image,
+      'rating': {'average': rating},
+      'genres': genres,
+    };
+  }
 }
 
 class CastMember {
-  const CastMember({required this.personName, required this.characterName, this.image});
+  const CastMember({
+    required this.personName,
+    required this.characterName,
+    this.image,
+  });
   final String personName;
   final String characterName;
   final String? image;

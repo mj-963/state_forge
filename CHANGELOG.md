@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file.
 
+## 0.1.5 - 2026-06-07
+
+### Fixed
+- Added the Android internet permission to the example app main manifest.
+- Converted example network failures into `AsyncState.failure` UI states
+  instead of unhandled async exceptions.
+- Encoded TVMaze request query parameters with structured `Uri` APIs.
+
 ## 0.1.4 - 2026-06-07
 
 ### Fixed

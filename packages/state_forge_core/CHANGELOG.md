@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.1.3 - 2026-06-07
+
+### Fixed
+
+- Added a pure Dart package example for pub.dev scoring.
+- Made `StateForge` non-instantiable so dartdoc no longer reports an
+  undocumented default constructor.
+
 ## 0.1.2 - 2026-06-07
 
 ### Fixed

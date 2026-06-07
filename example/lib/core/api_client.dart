@@ -6,7 +6,9 @@ class ApiClient {
   static const _baseUrl = 'https://api.tvmaze.com';
 
   Future<List<Show>> getShows({int page = 0}) async {
-    final response = await http.get(Uri.parse('$_baseUrl/shows?page=$page'));
+    final response = await http.get(
+      Uri.parse('$_baseUrl/shows').replace(queryParameters: {'page': '$page'}),
+    );
     if (response.statusCode == 200) {
       final List data = jsonDecode(response.body);
       return data.map((json) => Show.fromJson(json)).toList();
@@ -15,7 +17,11 @@ class ApiClient {
   }
 
   Future<List<Show>> searchShows(String query) async {
-    final response = await http.get(Uri.parse('$_baseUrl/search/shows?q=$query'));
+    final response = await http.get(
+      Uri.parse(
+        '$_baseUrl/search/shows',
+      ).replace(queryParameters: {'q': query}),
+    );
     if (response.statusCode == 200) {
       final List data = jsonDecode(response.body);
       return data.map((json) => Show.fromJson(json['show'])).toList();
@@ -24,7 +30,9 @@ class ApiClient {
   }
 
   Future<(Show, List<CastMember>)> getShowDetails(int id) async {
-    final response = await http.get(Uri.parse('$_baseUrl/shows/$id?embed=cast'));
+    final response = await http.get(
+      Uri.parse('$_baseUrl/shows/$id?embed=cast'),
+    );
     if (response.statusCode == 200) {
       final data = jsonDecode(response.body);
       final show = Show.fromJson(data);

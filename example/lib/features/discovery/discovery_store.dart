@@ -11,10 +11,14 @@ class DiscoveryStore extends Store<AsyncState<List<Show>>> {
 
   Future<void> load() async {
     emit(const Loading());
-    await guard(() async {
-      final shows = await _api.getShows();
-      emit(Success(shows));
-    });
+    try {
+      await guard(() async {
+        final shows = await _api.getShows();
+        emit(Success(shows));
+      });
+    } catch (error) {
+      emit(Failure(error));
+    }
   }
 
   void search(String query) {
@@ -24,12 +28,18 @@ class DiscoveryStore extends Store<AsyncState<List<Show>>> {
     }
 
     _debounce?.cancel();
-    _debounce = keep(Timer(const Duration(milliseconds: 500), () async {
-      emit(const Loading());
-      await guard(() async {
-        final results = await _api.searchShows(query);
-        emit(Success(results));
-      });
-    }));
+    _debounce = keep(
+      Timer(const Duration(milliseconds: 500), () async {
+        emit(const Loading());
+        try {
+          await guard(() async {
+            final results = await _api.searchShows(query);
+            emit(Success(results));
+          });
+        } catch (error) {
+          emit(Failure(error));
+        }
+      }),
+    );
   }
 }

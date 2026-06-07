@@ -18,22 +18,29 @@ class SearchStore extends Store<AsyncState<List<String>>> {
     // Debounce for 500ms
     _debounceTimer = Timer(const Duration(milliseconds: 500), () async {
       emit(const Loading());
-      
-      await guard(() async {
-        // Simulating search API
-        await Future.delayed(const Duration(seconds: 1));
-        
-        final results = [
-          'StateForge',
-          'Flutter',
-          'Riverpod',
-          'BLoC',
-          'Signals',
-          'State Beacon',
-        ].where((s) => s.toLowerCase().contains(query.toLowerCase())).toList();
-        
-        emit(Success(results));
-      });
+
+      try {
+        await guard(() async {
+          // Simulating search API
+          await Future.delayed(const Duration(seconds: 1));
+
+          final results =
+              [
+                    'StateForge',
+                    'Flutter',
+                    'Riverpod',
+                    'BLoC',
+                    'Signals',
+                    'State Beacon',
+                  ]
+                  .where((s) => s.toLowerCase().contains(query.toLowerCase()))
+                  .toList();
+
+          emit(Success(results));
+        });
+      } catch (error) {
+        emit(Failure(error));
+      }
     });
   }
 
