@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.1.2 - 2026-06-07
+
+### Fixed
+
+- Updated installation examples and dependency constraints for the latest
+  `state_forge` patch release.
+
 ## 0.1.1 - 2026-06-07
 
 ### Fixed

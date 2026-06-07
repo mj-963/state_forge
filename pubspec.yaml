@@ -1,6 +1,6 @@
 name: state_forge
 description: Structured Flutter state management with typed stores, scoped rebuilds, effects, persistence, and test helpers.
-version: 0.1.1
+version: 0.1.2
 homepage: https://github.com/mj-963/state_forge
 repository: https://github.com/mj-963/state_forge
 issue_tracker: https://github.com/mj-963/state_forge/issues

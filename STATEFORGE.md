@@ -787,22 +787,19 @@ state_forge/
 
 ```yaml
 name: state_forge
-description: >-
-  Structured Flutter state management with zero boilerplate and zero
-  code generation. One store file per feature. Built on Dart 3 sealed
-  classes, a pure Dart core, and Flutter's InheritedModel for scoped rebuilds.
-  The architecture BLoC wished it had. The simplicity Riverpod never delivered.
-version: 0.1.0
-homepage: https://github.com/yourusername/state_forge
-repository: https://github.com/yourusername/state_forge
-issue_tracker: https://github.com/yourusername/state_forge/issues
-documentation: https://yourusername.github.io/state_forge/
+description: Structured Flutter state management with typed stores, scoped rebuilds, effects, persistence, and test helpers.
+version: 0.1.2
+homepage: https://github.com/mj-963/state_forge
+repository: https://github.com/mj-963/state_forge
+issue_tracker: https://github.com/mj-963/state_forge/issues
+documentation: https://github.com/mj-963/state_forge/tree/main/doc
 
 topics:
-  - state-management
   - flutter
-  - architecture
-  - store
+  - dart
+  - state-management
+  - reactive
+  - testing
   - reactive
 
 environment:

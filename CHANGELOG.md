@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## 0.1.2 - 2026-06-07
+
+### Fixed
+- Corrected GitHub links in README badges and long-form package notes.
+- Aligned package metadata examples with the published repository URL.
+
 ## 0.1.1 - 2026-06-07
 
 ### Fixed
