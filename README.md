@@ -2,7 +2,7 @@
 
 [![Build Status](https://img.shields.io/badge/build-passing-brightgreen.svg)](https://github.com/mj-963/state_forge)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Pub Version](https://img.shields.io/badge/pub-v0.1.2-blue.svg)](https://pub.dev/packages/state_forge)
+[![Pub Version](https://img.shields.io/badge/pub-v0.1.3-blue.svg)](https://pub.dev/packages/state_forge)
 [![Selectors](https://img.shields.io/badge/context.select-tested-brightgreen.svg)](https://github.com/mj-963/state_forge/tree/main/test)
 
 **Structured Flutter state management. Zero boilerplate. Zero code generation. Zero ceremony.**
@@ -83,7 +83,7 @@ The same feature in BLoC requires:
 **1. Add to pubspec.yaml**
 ```yaml
 dependencies:
-  state_forge: ^0.1.2
+  state_forge: ^0.1.3
 ```
 
 **2. Define your Store**

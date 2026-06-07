@@ -11,6 +11,7 @@
 - Raised the `shared_preferences` lower bound to the first version that
   provides `SharedPreferencesAsync`.
 - Added a package example and library documentation for pub.dev scoring.
+- Updated the MIT license copyright holder to Marcus Jacob.
 
 ## 0.1.0 - 2026-06-07
 

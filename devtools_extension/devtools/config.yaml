@@ -1,5 +1,5 @@
 name: state_forge
 issueTracker: https://github.com/mj-963/state_forge/issues
-version: 0.1.2
+version: 0.1.3
 materialIconCodePoint: "0xe8b8" # Settings/Forge icon
 requiresConnection: true

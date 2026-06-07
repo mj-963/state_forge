@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.1.2 - 2026-06-07
+
+### Fixed
+
+- Updated the MIT license copyright holder to Marcus Jacob.
+
 ## 0.1.1 - 2026-06-07
 
 ### Fixed

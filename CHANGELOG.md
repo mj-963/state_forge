@@ -2,6 +2,11 @@
 
 All notable changes to this project will be documented in this file.
 
+## 0.1.3 - 2026-06-07
+
+### Fixed
+- Updated the MIT license copyright holder to Marcus Jacob.
+
 ## 0.1.2 - 2026-06-07
 
 ### Fixed
