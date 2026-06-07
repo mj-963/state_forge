@@ -1,0 +1,32 @@
+name: state_forge_shared_preferences
+description: SharedPreferences persistence adapter for StateForge stores.
+version: 0.1.1
+homepage: https://github.com/mj-963/state_forge
+repository: https://github.com/mj-963/state_forge
+issue_tracker: https://github.com/mj-963/state_forge/issues
+documentation: https://github.com/mj-963/state_forge/tree/main/doc
+topics:
+  - flutter
+  - persistence
+  - shared-preferences
+  - state-management
+  - storage
+
+environment:
+  sdk: '>=3.3.0 <4.0.0'
+  flutter: '>=3.19.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  shared_preferences: '>=2.2.0 <4.0.0'
+  state_forge: ^0.1.1
+
+dev_dependencies:
+  flutter_lints: ^5.0.0
+  flutter_test:
+    sdk: flutter
+  shared_preferences_platform_interface: ^2.4.2
+
+flutter:
+  uses-material-design: true

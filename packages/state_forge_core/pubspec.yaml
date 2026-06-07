@@ -1,0 +1,23 @@
+name: state_forge_core
+description: Pure Dart state management primitives for StateForge stores, effects, persistence, observers, and testing.
+version: 0.1.1
+homepage: https://github.com/mj-963/state_forge
+repository: https://github.com/mj-963/state_forge
+issue_tracker: https://github.com/mj-963/state_forge/issues
+documentation: https://github.com/mj-963/state_forge/tree/main/doc
+topics:
+  - dart
+  - state-management
+  - reactive
+  - stores
+  - testing
+
+environment:
+  sdk: '>=3.3.0 <4.0.0'
+
+dependencies:
+  meta: ^1.11.0
+
+dev_dependencies:
+  lints: ^4.0.0
+  test: ^1.25.0

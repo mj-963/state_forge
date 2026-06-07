@@ -1,0 +1,32 @@
+name: state_forge
+description: Structured Flutter state management with typed stores, scoped rebuilds, effects, persistence, and test helpers.
+version: 0.1.1
+homepage: https://github.com/mj-963/state_forge
+repository: https://github.com/mj-963/state_forge
+issue_tracker: https://github.com/mj-963/state_forge/issues
+documentation: https://github.com/mj-963/state_forge/tree/main/doc
+topics:
+  - flutter
+  - dart
+  - state-management
+  - reactive
+  - testing
+
+environment:
+  sdk: '>=3.3.0 <4.0.0'
+  flutter: '>=3.19.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_test:
+    sdk: flutter
+  meta: ^1.11.0
+  state_forge_core: ^0.1.1
+
+dev_dependencies:
+  flutter_lints: ^5.0.0
+  devtools_extensions: ^0.0.10
+
+flutter:
+  uses-material-design: true
