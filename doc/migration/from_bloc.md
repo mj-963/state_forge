@@ -1,6 +1,8 @@
 # Migrating from BLoC to StateForge
 
-StateForge is often described as "what Cubit wished it was." If you are coming from BLoC, you'll find the architecture familiar but the ceremony significantly reduced.
+If you are coming from BLoC or Cubit, StateForge will feel familiar in one
+important way: state changes still move in one direction. The main difference is
+that feature commands are direct store methods instead of dispatched events.
 
 ## Core Concepts Comparison
 
@@ -16,13 +18,16 @@ StateForge is often described as "what Cubit wished it was." If you are coming f
 
 ## Key Differences
 
-1.  **No Events**: Instead of dispatching an event and handling it in an `on<Event>` handler, you call methods directly on the Store.
-2.  **No Indirection**: You don't need a separate file for events. Logic lives in the Store methods.
-3.  **No Codegen**: While BLoC often uses `freezed` for states, StateForge uses native Dart 3 sealed classes or the built-in `AsyncState`.
+1. **Direct commands**: Instead of dispatching an event and handling it in an
+   `on<Event>` handler, call methods directly on the store.
+2. **Fewer moving parts**: Feature logic lives in store methods. State can be a
+   native Dart sealed hierarchy, a data class, or `AsyncState<T>`.
+3. **Effects are separate**: Use `effect()` for one-time signals such as
+   navigation or snackbars.
 
 ## Side-by-Side Example
 
-### BLoC (with Indirection)
+### BLoC
 ```dart
 // Event
 class LoginRequested extends LoginEvent { ... }
@@ -60,4 +65,5 @@ context.read<LoginStore>().login(email, password);
 ```
 
 ## Summary
-StateForge gives you the same predictable, one-way data flow as BLoC but removes 50% of the files and 100% of the code generation.
+StateForge is useful when you like predictable state transitions but want direct
+feature methods instead of an event pipeline.

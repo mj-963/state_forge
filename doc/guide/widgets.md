@@ -7,7 +7,7 @@ For most cases, using the `BuildContext` extensions is the fastest way to get st
 
 - **`context.watch<T>()`**: Subscribes to the store. Rebuilds the whole widget when the state changes.
 - **`context.read<T>()`**: Fetches the store without subscribing. Use this inside `onPressed` or `onTap`.
-- **`context.select<T, S, R>((s) => ...)`**: The surgical option. Only rebuilds if the specific selected value changes.
+- **`context.select<T, S, R>((s) => ...)`**: Selects a slice of state. Rebuilds only if the selected value changes.
 
 ```dart
 Widget build(BuildContext context) {
@@ -59,6 +59,7 @@ ForgeSelector<CartStore, CartState, int>(
 
 ### `ForgeListener`
 React to side effects (snackbars, navigation) without rebuilding the UI.
+Effects are one-time signals and are not replayed just because a widget rebuilds.
 ```dart
 ForgeListener<AuthStore, String>(
   onEffect: (context, effect) {

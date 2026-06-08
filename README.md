@@ -2,19 +2,39 @@
 
 [![Build Status](https://img.shields.io/badge/build-passing-brightgreen.svg)](https://github.com/mj-963/state_forge)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Pub Version](https://img.shields.io/badge/pub-v0.1.6-blue.svg)](https://pub.dev/packages/state_forge)
+[![Pub Version](https://img.shields.io/badge/pub-v0.1.7-blue.svg)](https://pub.dev/packages/state_forge)
 [![Selectors](https://img.shields.io/badge/context.select-tested-brightgreen.svg)](https://github.com/mj-963/state_forge/tree/main/test)
 
-**Structured Flutter state management. Zero boilerplate. Zero code generation. Zero ceremony.**
+**A feature-scoped state layer for Flutter apps. Zero boilerplate. Zero code generation. Zero ceremony.**
 
 > One file per feature. Direct method calls. No events. No `build_runner`. No waiting.
+
+---
+
+## Table of Contents
+
+- [Why StateForge](#why-stateforge)
+- [Mental Model](#mental-model)
+- [The 10-Second Proof](#the-10-second-proof)
+- [Quick Start](#quick-start)
+- [Core Concepts](#core-concepts)
+- [Power Features](#power-features)
+- [State Patterns](#state-patterns)
+- [Testing](#testing)
+- [Performance](#performance)
+- [When Not to Use StateForge](#when-not-to-use-stateforge)
+- [Comparison](#comparison)
+- [Migrating](#migrating)
+- [Resources](#resources)
+- [License](#license)
 
 ---
 
 ## Why StateForge
 
 StateForge is for Flutter features that should stay small without becoming
-implicit or hard to test.
+implicit or hard to test. You can adopt it one feature at a time instead of
+replacing your whole app architecture.
 
 BLoC emphasizes explicit event-driven architecture. Riverpod emphasizes provider
 composition and strong dependency modeling. Provider keeps close to Flutter's
@@ -24,6 +44,8 @@ widget tree. StateForge focuses on a narrower goal:
 > state transitions, scoped rebuilds, and first-class one-time effects.
 
 No event classes. No generated state classes. No `build_runner` step required.
+Stores are scoped by default and live in the widget tree. They are only global
+when you choose to mount them at the app root.
 
 ## Mental Model
 
@@ -33,7 +55,7 @@ Widget
   ▼
 Store
   ├─ state  ──> rebuild UI
-  └─ effect ──> navigation, snackbars, analytics
+  └─ effect ──> one-time navigation, snackbars, analytics
   │
   ▼
 Repository / API
@@ -103,7 +125,7 @@ an event pipeline.
 **1. Add to pubspec.yaml**
 ```yaml
 dependencies:
-  state_forge: ^0.1.6
+  state_forge: ^0.1.7
 ```
 
 **2. Define your Store**
@@ -193,7 +215,7 @@ state.maybeWhen(
 
 ### Selective Rebuilds — ForgeSelector
 
-When a global store (cart, auth, profile) changes, only the widgets that care
+When a shared store (cart, auth, profile) changes, only the widgets that care
 should rebuild. `ForgeSelector` lets you subscribe to a slice of state and
 rebuild only when that selected value changes.
 
@@ -219,7 +241,11 @@ semantics for inline widget code.
 
 ### Side Effects — First Class
 
-Side effects (navigation, snackbars, analytics) are not UI state — they should never live in your state class. StateForge provides a dedicated `effect()` stream so you never have to hack your state to trigger a one-time event.
+Side effects (navigation, snackbars, analytics) are not UI state — they should
+never live in your state class. StateForge provides a dedicated `effect()`
+stream so you never have to hack your state to trigger a one-time event.
+Effects are consumed once by listeners and are not replayed just because a
+widget rebuilds.
 
 ```dart
 // In your store
@@ -245,7 +271,8 @@ ForgeListener<CartStore, CartEffect>(
 
 ### Scoped Lifecycle — Stores Die When Screens Die
 
-StateForge uses the widget tree for store lifecycle — no `autoDispose`, no manual `close()`, no leaked controllers.
+StateForge uses the widget tree for store lifecycle. A store lives for as long
+as its provider is mounted, then it is disposed automatically.
 
 ```dart
 // Screen-scoped: auto-disposed when LoginPage leaves the tree
@@ -254,7 +281,7 @@ StoreProvider<LoginStore>(
   child: const LoginPage(),
 )
 
-// Global: lives for the app session — place at MaterialApp
+// App-scoped: lives for the app session — place at MaterialApp
 StoreProvider<AuthStore>(
   create: (_) => AuthStore(),
   child: MaterialApp(home: const HomePage()),
@@ -467,13 +494,31 @@ forgeTest<CounterStore, int>(
 StateForge stores are pure Dart listenables, and the Flutter package exposes them
 through `InheritedModel` for scoped widget-tree access.
 
-- **O(1)** store lookup from any descendant widget
-- **O(1)** notification dispatch
-- **Frame coalescing** — if a store emits multiple times between frames, widgets rebuild exactly once
-- **Selective rebuilds** — `ForgeSelector` rebuilds only when the selected value changes
-- Benchmark scenarios live in [`benchmark_suite/`](/benchmark_suite/) and focused rebuild behavior is covered by tests
+StateForge minimizes rebuild work by:
+
+- Batching asynchronous store notifications into a microtask
+- Looking up stores through scoped inherited widgets instead of global listeners
+- Rebuilding selector widgets only when their selected value changes
+- Keeping one-time effects separate from state so effects do not force state rebuilds
+
+Focused rebuild behavior is covered by tests. Local benchmark and stress-test
+scenarios live in [`benchmark_suite/`](/benchmark_suite/).
 
 ---
+
+## When Not to Use StateForge
+
+StateForge is intentionally focused on feature-scoped state and direct store
+methods. It may not be the best fit when:
+
+- Your team is already standardized on BLoC, Riverpod, or Provider and the
+  current architecture is working well
+- You need strict event-sourcing semantics where every state transition must be
+  modeled as a domain event
+- Your app is mostly a provider graph or dependency graph problem rather than a
+  feature-state problem
+- You want generated provider APIs, compile-time provider wiring, or a larger
+  ecosystem around dependency injection
 
 ## Comparison
 
@@ -511,7 +556,8 @@ final listenable = counterStore.asListenable();
 ## Resources
 
 - **[Complete User Guide](/doc/README.md)** — Deep dive into every feature
-- **[Performance Benchmark Suite](/benchmark_suite/)** — Rebuild and stress-test scenarios
+- **[Benchmark Suite](/benchmark_suite/)** — Local rebuild and stress-test scenarios
+- **[DevTools Source](/state_forge_devtools/)** — Source for the bundled DevTools extension
 - **[Example App](/example/)** — Full e-commerce app: auth + products + cart
 
 ---

@@ -31,12 +31,14 @@ pubspec.lock
 .flutter-plugins-dependencies
 /build/
 **/build/
+!extension/
+!extension/devtools/
+!extension/devtools/build/
+!extension/devtools/build/**
 /coverage/
 **/coverage/
 
 # StateForge development tools
-benchmark_suite/
-state_forge_devtools/
 
 
 P_.MD

@@ -2,6 +2,20 @@
 
 All notable changes to this project will be documented in this file.
 
+## 0.1.7 - 2026-06-08
+
+### Added
+- Added a bundled Flutter DevTools extension under `extension/devtools`.
+- Added public DevTools source under `state_forge_devtools`.
+- Added a local benchmark and stress-test suite under `benchmark_suite`.
+- Added a table of contents to the main README.
+
+### Changed
+- Updated package docs to describe feature-scoped adoption, scoped stores,
+  one-time effects, and benchmark/devtools resources more precisely.
+- Raised the `state_forge_core` dependency constraint to the published
+  `^0.1.3` release.
+
 ## 0.1.6 - 2026-06-07
 
 ### Changed

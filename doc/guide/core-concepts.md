@@ -1,8 +1,9 @@
 # Core Concepts 🏗️
 
-StateForge is built on a single, powerful premise: **The Store is the entire state layer for a feature.** 
+StateForge is built around one premise: **the Store is the state layer for a feature.**
 
-Unlike libraries that treat state as a collection of variables, StateForge enforces an architecture where logic, state, and side effects are encapsulated in a single, self-contained unit.
+Logic, state, and one-time effects live in a single plain Dart object that can
+be scoped in the Flutter widget tree.
 
 ## 1. The Store (`Store<S>`)
 The `Store` is the brain of your feature. It is a plain class with no `BuildContext` dependency that manages a single state object and serves as the only point of entry for modifying that state.
@@ -19,12 +20,12 @@ class CounterStore extends Store<int> {
 ### Key Store Methods:
 - **`emit(S newState)`**: The standard way to update state. Updates are coalesced per microtask to prevent redundant UI rebuilds.
 - **`emitSync(S newState)`**: Updates state and notifies the UI immediately. Use this for frame-perfect logic (animations, drawing).
-- **`guard(Future<T> Function() action)`**: Safely runs an async function. It catches errors and pipes them to the global `onError` handler.
+- **`guard(Future<T> Function() action)`**: Runs an async function, reports errors to observers and the global `onError` handler, then rethrows so the store can decide whether to emit a failure state.
 - **`keep(T resource)`**: Registers a resource (Timer, StreamSubscription, etc.) to be auto-disposed when the store is destroyed.
 
 ---
 
-## 2. AsyncState: The Boilerplate Killer
+## 2. AsyncState
 Most features deal with loading data. Instead of writing your own `Loading`, `Success`, and `Error` classes every time, use the built-in `AsyncState<T>`.
 
 ```dart
@@ -79,4 +80,4 @@ class ProfileState {
   ProfileState toggleEdit() => ProfileState(name: name, isEditing: !isEditing);
 }
 ```
-**Benefit**: Extremely readable state transitions without the magic of `copyWith`.
+**Benefit**: Readable state transitions without requiring generated helpers.

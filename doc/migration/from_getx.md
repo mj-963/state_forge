@@ -1,8 +1,10 @@
 # Migrating from GetX to StateForge
 
-If you are coming from GetX, you likely value **simplicity** and **low ceremony**. You might be frustrated with BLoC's boilerplate or Riverpod's code generation. 
+If you are coming from GetX, you likely value simplicity and low ceremony.
+StateForge keeps direct method calls, but scopes stores through Flutter's widget
+tree and models state as immutable values.
 
-StateForge is the perfect destination for GetX developers: it keeps the "one file per feature" speed but adds the **structured architecture** and **testability** that professional apps require.
+You can try it in one feature without changing the rest of your app.
 
 ## Core Concepts Comparison
 
@@ -14,16 +16,20 @@ StateForge is the perfect destination for GetX developers: it keeps the "one fil
 | `Get.find<T>()` | `context.read<T>()` or `context.watch<T>()` |
 | `Get.put(Store())` | `StoreProvider(create: (_) => Store())` |
 
-## Why Move to StateForge?
+## Key Differences
 
-1.  **Scoped Lifecycles**: In GetX, managing when a controller is deleted is notoriously difficult. In StateForge, stores are scoped to the widget tree—they are **automatically disposed** when the screen is removed. No more memory leaks or global state pollution.
-2.  **Immutability**: GetX relies on observable primitives (`.obs`) which can lead to unpredictable side effects in large apps. StateForge uses immutable states, making your app's flow 100% predictable.
-3.  **No Global Magic**: StateForge doesn't use a global internal map for dependency injection. It uses Flutter's native `InheritedWidget` system, making it faster and compatible with all Flutter dev tools.
-4.  **Testability**: Because StateForge stores have no `BuildContext` dependency and are not global singletons, you can unit test them without pumping widgets or clearing global state between tests.
+1. **Widget-tree scoping**: Stores live where you mount their provider. They are
+   only app-wide if you place them at the app root.
+2. **Immutable state objects**: Store state is a value. Update it by emitting a
+   new value.
+3. **Explicit lookup**: Read stores from `BuildContext` or pass dependencies
+   through constructors.
+4. **Plain unit tests**: Stores have no `BuildContext` dependency, so most
+   business logic can be tested without a widget tree.
 
 ## Side-by-Side Example
 
-### GetX (Global Singletons)
+### GetX
 ```dart
 class CounterController extends GetxController {
   var count = 0.obs;
@@ -34,7 +40,7 @@ class CounterController extends GetxController {
 Obx(() => Text('${controller.count}'));
 ```
 
-### StateForge (Scoped & Structured)
+### StateForge
 ```dart
 class CounterStore extends Store<int> {
   CounterStore() : super(0);
@@ -47,4 +53,5 @@ Text('$count');
 ```
 
 ## Summary
-StateForge gives you the same "one-file" velocity as GetX, but with an architectural foundation that scales to enterprise-level applications.
+StateForge is a fit when you want direct methods and small feature files while
+making store ownership and dependencies explicit.

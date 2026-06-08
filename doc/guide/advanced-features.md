@@ -1,6 +1,6 @@
 # Advanced Features 🚀
 
-Once you master the basics, StateForge offers powerful tools for industrial-scale apps.
+StateForge includes optional mixins and helpers for common state patterns.
 
 ## 1. Mixins: Optional Power-Ups
 StateForge is "batteries included but opt-in."
@@ -43,7 +43,8 @@ load saved state first and then save every future state change. Use
 manually when saving should happen only after explicit user actions.
 
 ### `CompositedStore`
-Easily watch other stores from inside your store. No more global singletons.
+Watch another store from inside a store when a dependency relationship is
+explicit and lifecycle-safe.
 ```dart
 class OrderStore extends Store<OrderState> with CompositedStore<OrderState> {
   OrderStore(AuthStore auth) : super(const OrderState()) {
@@ -70,7 +71,8 @@ StoreProxyProvider<AuthStore, CartStore>(
 ---
 
 ## 2. Global Auditing (`ForgeObserver`)
-Enterprise apps need audit trails. Create a `ForgeObserver` to log every single state transition in your app.
+Create a `ForgeObserver` to record store lifecycle events, state transitions,
+effects, and errors.
 
 ```dart
 final logger = ForgeObserver(

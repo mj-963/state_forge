@@ -1,6 +1,10 @@
 .dart_tool/
 build/
 **/build/
+!extension/
+!extension/devtools/
+!extension/devtools/build/
+!extension/devtools/build/**
 pubspec_overrides.yaml
 *.lock
 
