@@ -10,6 +10,8 @@ topics:
   - dart
   - state-management
   - reactive
+  - riverpod
+  - bloc
   - testing
 
 environment:
