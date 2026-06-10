@@ -1,6 +1,7 @@
 # Core Concepts 🏗️
 
-StateForge is built around one premise: **the Store is the state layer for a feature.**
+[StateForge](../../README.md) is built around one premise: **the Store is the
+state layer for a feature.**
 
 Logic, state, and one-time effects live in a single plain Dart object that can
 be scoped in the Flutter widget tree.
@@ -81,3 +82,7 @@ class ProfileState {
 }
 ```
 **Benefit**: Readable state transitions without requiring generated helpers.
+
+Related docs: [UI Integration](widgets.md),
+[Advanced Features](advanced-features.md), and
+[Migration Guides](../README.md#migration-path).

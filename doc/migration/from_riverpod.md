@@ -1,8 +1,9 @@
 # Migrating from Riverpod to StateForge
 
-Riverpod is strong at provider composition and dependency modeling. StateForge
-is narrower: it moves feature state into explicit store objects that are scoped
-in the Flutter widget tree.
+[Riverpod](https://pub.dev/packages/flutter_riverpod) is strong at provider
+composition and dependency modeling. [StateForge](../../README.md) is narrower:
+it moves feature state into explicit store objects that are scoped in the
+Flutter widget tree.
 
 ## Core Concepts Comparison
 
@@ -58,3 +59,7 @@ final count = context.watch<CounterStore>().state;
 StateForge is a fit when a feature wants a small object-oriented state layer.
 Riverpod remains a strong choice when the provider graph itself is the center of
 the architecture.
+
+Related docs: [Core Concepts](../guide/core-concepts.md),
+[UI Integration](../guide/widgets.md), and
+[Advanced Features](../guide/advanced-features.md).

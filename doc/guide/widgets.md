@@ -1,6 +1,7 @@
 # Widgets & UI Integration 🎨
 
-StateForge provides three ways to connect your Store to your Flutter UI.
+[StateForge](../../README.md) provides three ways to connect your Store to your
+Flutter UI.
 
 ## 1. The Shorthand (Extensions)
 For most cases, using the `BuildContext` extensions is the fastest way to get started.
@@ -68,4 +69,9 @@ ForgeListener<AuthStore, String>(
   child: MyForm(),
 )
 ```
-**Pro Tip**: If you are in a `StatefulWidget`, use the `ForgeEffectListener` mixin instead of this widget to keep your tree shallow.
+**Pro Tip**: If you are in a `StatefulWidget`, use the `ForgeEffectListener`
+mixin instead of this widget to keep your tree shallow.
+
+Related docs: [Core Concepts](core-concepts.md),
+[Advanced Features](advanced-features.md), and
+[Migration Guides](../README.md#migration-path).

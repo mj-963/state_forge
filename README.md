@@ -2,7 +2,7 @@
 
 [![Build Status](https://img.shields.io/badge/build-passing-brightgreen.svg)](https://github.com/mj-963/state_forge)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Pub Version](https://img.shields.io/badge/pub-v0.1.7-blue.svg)](https://pub.dev/packages/state_forge)
+[![Pub Version](https://img.shields.io/badge/pub-v0.1.8-blue.svg)](https://pub.dev/packages/state_forge)
 [![Selectors](https://img.shields.io/badge/context.select-tested-brightgreen.svg)](https://github.com/mj-963/state_forge/tree/main/test)
 
 **A feature-scoped state layer for Flutter apps. Zero boilerplate. Zero code generation. Zero ceremony.**
@@ -36,9 +36,11 @@ StateForge is for Flutter features that should stay small without becoming
 implicit or hard to test. You can adopt it one feature at a time instead of
 replacing your whole app architecture.
 
-BLoC emphasizes explicit event-driven architecture. Riverpod emphasizes provider
-composition and strong dependency modeling. Provider keeps close to Flutter's
-widget tree. StateForge focuses on a narrower goal:
+[BLoC](https://pub.dev/packages/flutter_bloc) emphasizes explicit event-driven
+architecture. [Riverpod](https://pub.dev/packages/flutter_riverpod) emphasizes
+provider composition and strong dependency modeling.
+[Provider](https://pub.dev/packages/provider) keeps close to Flutter's widget
+tree. StateForge focuses on a narrower goal:
 
 > Build a feature in one or two files, with direct method calls, predictable
 > state transitions, scoped rebuilds, and first-class one-time effects.
@@ -125,7 +127,7 @@ an event pipeline.
 **1. Add to pubspec.yaml**
 ```yaml
 dependencies:
-  state_forge: ^0.1.7
+  state_forge: ^0.1.8
 ```
 
 **2. Define your Store**
@@ -347,9 +349,10 @@ Future<void> main() async {
 ```
 
 `state_forge` keeps storage as an adapter contract. Use
-`state_forge_shared_preferences` for lightweight local JSON, or swap in Hive,
-Drift, encrypted storage, files, or cloud sync by implementing
-`ForgeStorageAdapter`.
+[`state_forge_shared_preferences`](https://github.com/mj-963/state_forge/tree/main/packages/state_forge_shared_preferences) for
+lightweight local JSON, or swap in
+[Hive](https://pub.dev/packages/hive), [Drift](https://pub.dev/packages/drift),
+encrypted storage, files, or cloud sync by implementing `ForgeStorageAdapter`.
 
 If you need manual control, you can still call `hydrate()`, `persist()`, and
 `persistOnChange()` yourself.
@@ -501,8 +504,9 @@ StateForge minimizes rebuild work by:
 - Rebuilding selector widgets only when their selected value changes
 - Keeping one-time effects separate from state so effects do not force state rebuilds
 
-Focused rebuild behavior is covered by tests. Local benchmark and stress-test
-scenarios live in [`benchmark_suite/`](/benchmark_suite/).
+Focused rebuild behavior is covered by [tests](https://github.com/mj-963/state_forge/tree/main/test).
+Local benchmark and stress-test scenarios live in
+[`benchmark_suite/`](https://github.com/mj-963/state_forge/tree/main/benchmark_suite).
 
 ---
 
@@ -511,8 +515,11 @@ scenarios live in [`benchmark_suite/`](/benchmark_suite/).
 StateForge is intentionally focused on feature-scoped state and direct store
 methods. It may not be the best fit when:
 
-- Your team is already standardized on BLoC, Riverpod, or Provider and the
-  current architecture is working well
+- Your team is already standardized on
+  [BLoC](https://pub.dev/packages/flutter_bloc),
+  [Riverpod](https://pub.dev/packages/flutter_riverpod), or
+  [Provider](https://pub.dev/packages/provider) and the current architecture is
+  working well
 - You need strict event-sourcing semantics where every state transition must be
   modeled as a domain event
 - Your app is mostly a provider graph or dependency graph problem rather than a
@@ -547,18 +554,18 @@ final listenable = counterStore.asListenable();
 
 ## Migrating
 
-- **[From BLoC →](/doc/migration/from_bloc.md)** Move from event handlers to direct store methods.
-- **[From Riverpod →](/doc/migration/from_riverpod.md)** Move feature state into explicit store objects.
-- **[From GetX →](/doc/migration/from_getx.md)** Keep low ceremony while making dependencies explicit.
+- **[From BLoC →](https://github.com/mj-963/state_forge/blob/main/doc/migration/from_bloc.md)** Move from event handlers to direct store methods.
+- **[From Riverpod →](https://github.com/mj-963/state_forge/blob/main/doc/migration/from_riverpod.md)** Move feature state into explicit store objects.
+- **[From GetX →](https://github.com/mj-963/state_forge/blob/main/doc/migration/from_getx.md)** Keep low ceremony while making dependencies explicit.
 
 ---
 
 ## Resources
 
-- **[Complete User Guide](/doc/README.md)** — Deep dive into every feature
-- **[Benchmark Suite](/benchmark_suite/)** — Local rebuild and stress-test scenarios
-- **[DevTools Source](/state_forge_devtools/)** — Source for the bundled DevTools extension
-- **[Example App](/example/)** — Full e-commerce app: auth + products + cart
+- **[Complete User Guide](https://github.com/mj-963/state_forge/tree/main/doc)** — Deep dive into every feature
+- **[Benchmark Suite](https://github.com/mj-963/state_forge/tree/main/benchmark_suite)** — Local rebuild and stress-test scenarios
+- **[DevTools Source](https://github.com/mj-963/state_forge/tree/main/state_forge_devtools)** — Source for the bundled DevTools extension
+- **[Example App](https://github.com/mj-963/state_forge/tree/main/example)** — Movie watchlist demo with auth, search, details, profile, and persistence
 
 ---
 

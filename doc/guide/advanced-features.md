@@ -1,6 +1,7 @@
 # Advanced Features 🚀
 
-StateForge includes optional mixins and helpers for common state patterns.
+[StateForge](../../README.md) includes optional mixins and helpers for common
+state patterns.
 
 ## 1. Mixins: Optional Power-Ups
 StateForge is "batteries included but opt-in."
@@ -37,7 +38,9 @@ Configure a global adapter once:
 StateForge.storage = await SharedPreferencesForgeStorage.create();
 ```
 
-Persistence is intentionally opt-in. Use `hydrateOnCreate()` when a store should
+Persistence is intentionally opt-in. Use the
+[`state_forge_shared_preferences`](https://github.com/mj-963/state_forge/tree/main/packages/state_forge_shared_preferences)
+adapter for lightweight local JSON. Use `hydrateOnCreate()` when a store should
 load saved state first and then save every future state change. Use
 `persistOnChange()` directly when you only need auto-save, or call `persist()`
 manually when saving should happen only after explicit user actions.
@@ -112,3 +115,7 @@ Future<void> likePost(String id) async {
   ); // Automatically reverts to previous state if api fails
 }
 ```
+
+Related docs: [Core Concepts](core-concepts.md),
+[UI Integration](widgets.md), and
+[Migration Guides](../README.md#migration-path).

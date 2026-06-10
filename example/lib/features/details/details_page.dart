@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:state_forge/state_forge.dart';
 import '../../core/api_client.dart';
-import '../cart/cart_store.dart';
 import 'details_store.dart';
+import '../watchlist/watchlist_store.dart';
 
 class DetailsPage extends StatelessWidget {
   const DetailsPage({super.key, required this.showId});
@@ -46,7 +46,8 @@ class _DetailsView extends StatelessWidget {
                     actions: [
                       IconButton(
                         icon: const Icon(Icons.favorite_border),
-                        onPressed: () => context.read<CartStore>().toggle(show),
+                        onPressed: () =>
+                            context.read<WatchlistStore>().toggle(show),
                       ),
                     ],
                   ),
@@ -60,33 +61,41 @@ class _DetailsView extends StatelessWidget {
                             children: [
                               const Icon(Icons.star, color: Colors.amber),
                               const SizedBox(width: 4),
-                              Text('${show.rating}/10', style: Theme.of(context).textTheme.titleLarge),
+                              Text(
+                                '${show.rating}/10',
+                                style: Theme.of(context).textTheme.titleLarge,
+                              ),
                             ],
                           ),
                           const SizedBox(height: 16),
-                          Text('Summary', style: Theme.of(context).textTheme.headlineSmall),
+                          Text(
+                            'Summary',
+                            style: Theme.of(context).textTheme.headlineSmall,
+                          ),
                           const SizedBox(height: 8),
                           Text(show.summary),
                           const SizedBox(height: 24),
-                          Text('Cast', style: Theme.of(context).textTheme.headlineSmall),
+                          Text(
+                            'Cast',
+                            style: Theme.of(context).textTheme.headlineSmall,
+                          ),
                         ],
                       ),
                     ),
                   ),
                   SliverList(
-                    delegate: SliverChildBuilderDelegate(
-                      (context, index) {
-                        final member = cast[index];
-                        return ListTile(
-                          leading: member.image != null
-                              ? CircleAvatar(backgroundImage: NetworkImage(member.image!))
-                              : const CircleAvatar(child: Icon(Icons.person)),
-                          title: Text(member.personName),
-                          subtitle: Text('as ${member.characterName}'),
-                        );
-                      },
-                      childCount: cast.length,
-                    ),
+                    delegate: SliverChildBuilderDelegate((context, index) {
+                      final member = cast[index];
+                      return ListTile(
+                        leading: member.image != null
+                            ? CircleAvatar(
+                                backgroundImage: NetworkImage(member.image!),
+                              )
+                            : const CircleAvatar(child: Icon(Icons.person)),
+                        title: Text(member.personName),
+                        subtitle: Text('as ${member.characterName}'),
+                      );
+                    }, childCount: cast.length),
                   ),
                 ],
               );

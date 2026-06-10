@@ -1,12 +1,12 @@
 # StateForge DevTools
 
-This directory contains the Flutter web source app for the StateForge DevTools
-extension.
+This directory contains the Flutter web source app for the
+[StateForge](../README.md) [DevTools extension](https://docs.flutter.dev/tools/devtools/extensions).
 
 The published `state_forge` package ships the built extension from:
 
 ```text
-extension/devtools/
+../extension/devtools/
 ```
 
 Build and copy the source app into the package extension directory with:
@@ -21,7 +21,8 @@ Validate the parent package extension with:
 dart run devtools_extensions validate --package=..
 ```
 
-The extension calls these service extensions registered by `state_forge`:
+The extension calls these service extensions registered by
+[`state_forge`](../):
 
 - `ext.state_forge.getStores`
 - `ext.state_forge.getHistory`

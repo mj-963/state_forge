@@ -1,7 +1,7 @@
 name: state_forge_devtools
 description: Source app for the StateForge DevTools extension bundled with the state_forge package.
 publish_to: 'none'
-version: 0.1.7
+version: 0.1.8
 
 environment:
   sdk: ^3.11.0

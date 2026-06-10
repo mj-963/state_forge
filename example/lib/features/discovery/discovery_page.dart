@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:state_forge/state_forge.dart';
 import '../../core/models/show.dart';
-import '../cart/cart_store.dart';
-import '../cart/cart_page.dart';
 import '../details/details_page.dart';
+import '../watchlist/watchlist_page.dart';
+import '../watchlist/watchlist_store.dart';
 import 'discovery_store.dart';
 
 class DiscoveryPage extends StatefulWidget {
@@ -13,11 +13,12 @@ class DiscoveryPage extends StatefulWidget {
   State<DiscoveryPage> createState() => _DiscoveryPageState();
 }
 
-class _DiscoveryPageState extends State<DiscoveryPage> with ForgeEffectListener {
+class _DiscoveryPageState extends State<DiscoveryPage>
+    with ForgeEffectListener {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    listenToEffect<CartStore, String>((message) {
+    listenToEffect<WatchlistStore, String>((message) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(message), duration: const Duration(seconds: 1)),
       );
@@ -34,7 +35,7 @@ class _DiscoveryPageState extends State<DiscoveryPage> with ForgeEffectListener 
             icon: const Icon(Icons.favorite),
             onPressed: () => Navigator.push(
               context,
-              MaterialPageRoute(builder: (_) => const CartPage()),
+              MaterialPageRoute(builder: (_) => const WatchlistPage()),
             ),
           ),
         ],
@@ -57,16 +58,18 @@ class _DiscoveryPageState extends State<DiscoveryPage> with ForgeEffectListener 
               builder: (context, state, store) {
                 return state.when(
                   idle: () => const SizedBox(),
-                  loading: () => const Center(child: CircularProgressIndicator()),
+                  loading: () =>
+                      const Center(child: CircularProgressIndicator()),
                   failure: (e) => Center(child: Text('Error: $e')),
                   success: (shows) => GridView.builder(
                     padding: const EdgeInsets.all(16),
-                    gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: 2,
-                      childAspectRatio: 0.7,
-                      crossAxisSpacing: 16,
-                      mainAxisSpacing: 16,
-                    ),
+                    gridDelegate:
+                        const SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: 2,
+                          childAspectRatio: 0.7,
+                          crossAxisSpacing: 16,
+                          mainAxisSpacing: 16,
+                        ),
                     itemCount: shows.length,
                     itemBuilder: (context, index) {
                       final show = shows[index];
@@ -89,8 +92,8 @@ class _MovieCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isWishlisted = context.select<CartStore, CartState, bool>(
-      (s) => s.contains(show.id)
+    final isWatchlisted = context.select<WatchlistStore, WatchlistState, bool>(
+      (s) => s.contains(show.id),
     );
 
     return GestureDetector(
@@ -120,13 +123,19 @@ class _MovieCard extends StatelessWidget {
                   children: [
                     Text(
                       show.name,
-                      style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                      ),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),
                     Text(
                       show.genres.join(', '),
-                      style: const TextStyle(color: Colors.white70, fontSize: 10),
+                      style: const TextStyle(
+                        color: Colors.white70,
+                        fontSize: 10,
+                      ),
                     ),
                   ],
                 ),
@@ -137,10 +146,10 @@ class _MovieCard extends StatelessWidget {
               right: 4,
               child: IconButton(
                 icon: Icon(
-                  isWishlisted ? Icons.favorite : Icons.favorite_border,
-                  color: isWishlisted ? Colors.red : Colors.white,
+                  isWatchlisted ? Icons.favorite : Icons.favorite_border,
+                  color: isWatchlisted ? Colors.red : Colors.white,
                 ),
-                onPressed: () => context.read<CartStore>().toggle(show),
+                onPressed: () => context.read<WatchlistStore>().toggle(show),
               ),
             ),
           ],

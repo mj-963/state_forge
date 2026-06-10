@@ -1,17 +1,23 @@
-# state_forge_example
+# StateForge Example
 
-Example application for StateForge.
+Movie watchlist demo for [StateForge](../README.md).
 
-## Getting Started
+The app shows how to structure a small Flutter feature set with explicit stores:
 
-This project is a starting point for a Flutter application.
+- discovery and search flows backed by an API client
+- details screens with one-time effects
+- auth, watchlist, and profile stores scoped through the widget tree
+- persistence through the configured StateForge storage adapter
+- history controls for undo and redo
 
-A few resources to get you started if this is your first Flutter project:
+## Run
 
-- [Learn Flutter](https://docs.flutter.dev/get-started/learn-flutter)
-- [Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Flutter learning resources](https://docs.flutter.dev/reference/learning-resources)
+```sh
+flutter pub get
+flutter run
+```
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+The discovery and search screens call the public
+[TVMaze API](https://www.tvmaze.com/api), so those flows need network access.
+If the device is offline, the stores surface the request failure through their
+error state instead of crashing the UI.

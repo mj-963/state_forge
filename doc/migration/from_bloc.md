@@ -1,8 +1,9 @@
 # Migrating from BLoC to StateForge
 
-If you are coming from BLoC or Cubit, StateForge will feel familiar in one
-important way: state changes still move in one direction. The main difference is
-that feature commands are direct store methods instead of dispatched events.
+If you are coming from [BLoC](https://pub.dev/packages/flutter_bloc) or Cubit,
+[StateForge](../../README.md) will feel familiar in one important way: state
+changes still move in one direction. The main difference is that feature
+commands are direct store methods instead of dispatched events.
 
 ## Core Concepts Comparison
 
@@ -67,3 +68,7 @@ context.read<LoginStore>().login(email, password);
 ## Summary
 StateForge is useful when you like predictable state transitions but want direct
 feature methods instead of an event pipeline.
+
+Related docs: [Core Concepts](../guide/core-concepts.md),
+[UI Integration](../guide/widgets.md), and
+[Advanced Features](../guide/advanced-features.md).

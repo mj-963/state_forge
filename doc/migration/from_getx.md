@@ -1,8 +1,9 @@
 # Migrating from GetX to StateForge
 
-If you are coming from GetX, you likely value simplicity and low ceremony.
-StateForge keeps direct method calls, but scopes stores through Flutter's widget
-tree and models state as immutable values.
+If you are coming from [GetX](https://pub.dev/packages/get), you likely value
+simplicity and low ceremony. [StateForge](../../README.md) keeps direct method
+calls, but scopes stores through Flutter's widget tree and models state as
+immutable values.
 
 You can try it in one feature without changing the rest of your app.
 
@@ -55,3 +56,7 @@ Text('$count');
 ## Summary
 StateForge is a fit when you want direct methods and small feature files while
 making store ownership and dependencies explicit.
+
+Related docs: [Core Concepts](../guide/core-concepts.md),
+[UI Integration](../guide/widgets.md), and
+[Advanced Features](../guide/advanced-features.md).

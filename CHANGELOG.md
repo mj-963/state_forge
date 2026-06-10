@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file.
 
+## 0.1.8 - 2026-06-10
+
+### Changed
+- Repositioned the example app as a movie watchlist demo instead of an
+  e-commerce-style cart demo.
+- Renamed the example cart feature to watchlist for clearer domain fit.
+- Added clickable documentation links across README, guides, migration docs,
+  benchmark notes, and DevTools notes.
+- Added `bloc` as a pub topic for state-management discoverability.
+
 ## 0.1.7 - 2026-06-08
 
 ### Added
@@ -72,7 +82,7 @@ All notable changes to this project will be documented in this file.
 - **Optimistic Updates**: `optimistic()` helper for "success-first" UI transitions.
 - **Global Hooks**: `StateForge.onError` and `StateForge.debugMode`.
 - **DevTools Integration**: Initial hooks for Flutter DevTools extension.
-- **Example App**: A full-featured Movie E-commerce app using TVMaze API.
+- **Example App**: A movie discovery/watchlist app using the TVMaze API.
 - **Persistence Ergonomics**: `PersistableStore.persistOnChange()` for opt-in
   automatic persistence with debounce support.
 - **Hydration Lifecycle**: `PersistableStore.hydrateOnCreate()` to load

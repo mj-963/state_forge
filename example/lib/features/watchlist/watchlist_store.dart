@@ -3,40 +3,40 @@ import 'dart:async';
 import 'package:state_forge/state_forge.dart';
 import '../../core/models/show.dart';
 
-class CartState {
-  const CartState({this.items = const []});
+class WatchlistState {
+  const WatchlistState({this.items = const []});
   final List<Show> items;
 
   bool contains(int id) => items.any((i) => i.id == id);
 }
 
-class CartStore extends Store<CartState>
-    with UndoableStore<CartState>, PersistableStore<CartState> {
-  CartStore() : super(const CartState()) {
+class WatchlistStore extends Store<WatchlistState>
+    with UndoableStore<WatchlistState>, PersistableStore<WatchlistState> {
+  WatchlistStore() : super(const WatchlistState()) {
     unawaited(hydrateOnCreate(debounce: const Duration(milliseconds: 250)));
   }
 
   @override
-  String get storageKey => 'wishlist';
+  String get storageKey => 'watchlist';
 
   void toggle(Show show) {
     final newItems = List<Show>.from(state.items);
     if (state.contains(show.id)) {
       newItems.removeWhere((i) => i.id == show.id);
-      effect('Removed ${show.name} from Wishlist');
+      effect('Removed ${show.name} from watchlist');
     } else {
       newItems.add(show);
-      effect('Added ${show.name} to Wishlist');
+      effect('Added ${show.name} to watchlist');
     }
-    emit(CartState(items: newItems));
+    emit(WatchlistState(items: newItems));
   }
 
   @override
-  CartState fromJson(Map<String, dynamic> json) {
+  WatchlistState fromJson(Map<String, dynamic> json) {
     final rawItems = json['items'];
-    if (rawItems is! List) return const CartState();
+    if (rawItems is! List) return const WatchlistState();
 
-    return CartState(
+    return WatchlistState(
       items: rawItems
           .whereType<Map>()
           .map((item) => Show.fromJson(Map<String, dynamic>.from(item)))
@@ -45,7 +45,7 @@ class CartStore extends Store<CartState>
   }
 
   @override
-  Map<String, dynamic> toJson(CartState state) {
+  Map<String, dynamic> toJson(WatchlistState state) {
     return {'items': state.items.map((show) => show.toJson()).toList()};
   }
 }

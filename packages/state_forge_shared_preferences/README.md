@@ -1,16 +1,18 @@
 # state_forge_shared_preferences
 
-SharedPreferencesAsync persistence adapter for StateForge.
+[`SharedPreferencesAsync`](https://pub.dev/documentation/shared_preferences/latest/shared_preferences/SharedPreferencesAsync-class.html)
+persistence adapter for [StateForge](https://pub.dev/packages/state_forge).
 
 Use this for lightweight JSON state such as onboarding, settings, theme mode,
 and local feature flags. Keep `ForgeStorageAdapter` for advanced storage such as
-Hive, Drift, encrypted storage, files, or cloud sync.
+[Hive](https://pub.dev/packages/hive), [Drift](https://pub.dev/packages/drift),
+encrypted storage, files, or cloud sync.
 
 ## Install
 
 ```yaml
 dependencies:
-  state_forge: ^0.1.2
+  state_forge: ^0.1.8
   state_forge_shared_preferences: ^0.1.1
 ```
 

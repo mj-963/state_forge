@@ -1,9 +1,9 @@
 # state_forge_core
 
-Pure Dart core primitives for StateForge.
+Pure Dart core primitives for [StateForge](https://pub.dev/packages/state_forge).
 
 This package contains the framework-independent store engine used by the
-Flutter-facing `state_forge` package:
+Flutter-facing [`state_forge`](https://pub.dev/packages/state_forge) package:
 
 - `Store<S>` with listener-based state updates
 - `AsyncState<T>` sealed variants
@@ -14,7 +14,8 @@ Flutter-facing `state_forge` package:
 
 Use this package directly when you want StateForge store logic in a pure Dart
 package, CLI, backend, or shared module. Flutter apps should usually depend on
-`state_forge`, which re-exports these core APIs and adds widget-tree integration.
+[`state_forge`](https://pub.dev/packages/state_forge), which re-exports these
+core APIs and adds widget-tree integration.
 
 ```dart
 import 'package:state_forge_core/state_forge_core.dart';

@@ -1,6 +1,7 @@
 # StateForge Benchmark Suite
 
-This is a local benchmark and stress-test app for StateForge.
+This is a local benchmark and stress-test app for
+[StateForge](../README.md).
 
 It is used to exercise:
 
@@ -9,9 +10,11 @@ It is used to exercise:
 - disposal behavior during rapid async work
 - rough latency measurements for repeated updates
 
-The suite compares StateForge scenarios with comparable BLoC and Riverpod
-patterns where those scenarios are implemented. Treat the results as local
-engineering signals, not universal performance claims.
+The suite compares StateForge scenarios with comparable
+[BLoC](https://pub.dev/packages/flutter_bloc) and
+[Riverpod](https://pub.dev/packages/flutter_riverpod) patterns where those
+scenarios are implemented. Treat the results as local engineering signals, not
+universal performance claims.
 
 ## Running
 
@@ -23,5 +26,5 @@ flutter test
 flutter run
 ```
 
-The app depends on the repository-local `state_forge` package via a path
+The app depends on the repository-local [`state_forge`](../) package via a path
 dependency, so run it from a checkout of the full repository.

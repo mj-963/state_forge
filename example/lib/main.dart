@@ -2,14 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:state_forge/state_forge.dart';
 import 'core/api_client.dart';
 import 'features/auth/auth_store.dart';
-import 'features/cart/cart_store.dart';
 import 'features/discovery/discovery_page.dart';
 import 'features/discovery/discovery_store.dart';
+import 'features/watchlist/watchlist_store.dart';
 
 /// ForgeMovies: A real-world stress test application for StateForge.
 ///
 /// This app demonstrates:
-/// 1. Global Stores (Auth, Cart) provided at the root.
+/// 1. Global Stores (Auth, Watchlist) provided at the root.
 /// 2. Feature-specific, paginated stores (Discovery).
 /// 3. AsyncState pattern matching for clean UI.
 /// 4. Global Error Handling and Debug Mode.
@@ -36,7 +36,7 @@ Future<void> main() async {
     ForgeMultiProvider(
       providers: [
         StoreProvider<AuthStore>(create: (_) => AuthStore()),
-        StoreProvider<CartStore>(create: (_) => CartStore()),
+        StoreProvider<WatchlistStore>(create: (_) => WatchlistStore()),
         // We load the initial discovery data immediately
         StoreProvider<DiscoveryStore>(
           create: (_) => DiscoveryStore(apiClient)..load(),
