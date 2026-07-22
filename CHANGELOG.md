@@ -2,6 +2,24 @@
 
 All notable changes to this project will be documented in this file.
 
+## 0.1.9 - 2026-07-22
+
+### Fixed
+- `forgeTest` now captures **every** state transition, including intermediate
+  states produced by multiple synchronous `emit`s. Previously it observed state
+  through a listener, which only fired after microtask coalescing and therefore
+  dropped intermediate states — contradicting its documented "captures every
+  state change" contract. Capture now happens through the synchronous observer
+  hook and preserves/restores any previously installed observer.
+
+### Changed
+- **Behavior change (tests only):** a `forgeTest` whose `act` performs several
+  synchronous emits now sees each state (e.g. `[1, 2]`) instead of only the
+  final coalesced value (`[2]`). This matches `bloc_test` semantics. Runtime UI
+  behavior is unchanged — widgets still coalesce synchronous emits into a single
+  rebuild. Update affected `expect` lists accordingly, or use `emitSync` if you
+  intend distinct notifications.
+
 ## 0.1.8 - 2026-06-10
 
 ### Changed

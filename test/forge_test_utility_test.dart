@@ -21,13 +21,14 @@ void main() {
     );
 
     forgeTest<CounterStore, int>(
-      'captures multiple increments',
+      'captures every intermediate state from synchronous emits',
       build: () => CounterStore(),
       act: (store) {
         store.increment();
         store.increment();
       },
-      expect: () => [2], // Coalesced into one update because it's sync
+      // Observed per-emit even though the UI coalesces these into one rebuild.
+      expect: () => [1, 2],
     );
 
     forgeTest<CounterStore, int>(
