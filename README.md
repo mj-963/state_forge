@@ -2,12 +2,14 @@
 
 [![Build Status](https://img.shields.io/badge/build-passing-brightgreen.svg)](https://github.com/mj-963/state_forge)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Pub Version](https://img.shields.io/badge/pub-v0.1.8-blue.svg)](https://pub.dev/packages/state_forge)
+[![Pub Version](https://img.shields.io/badge/pub-v0.1.9-blue.svg)](https://pub.dev/packages/state_forge)
 [![Selectors](https://img.shields.io/badge/context.select-tested-brightgreen.svg)](https://github.com/mj-963/state_forge/tree/main/test)
 
-**A feature-scoped state layer for Flutter apps. Zero boilerplate. Zero code generation. Zero ceremony.**
+**Feature-scoped stores for Flutter. They compose, they own their subscriptions,
+and your widgets never inherit from them.**
 
-> One file per feature. Direct method calls. No events. No `build_runner`. No waiting.
+> Plain Dart classes. Direct method calls. No event classes, no code generation,
+> no `build_runner`.
 
 ---
 
@@ -16,6 +18,7 @@
 - [Why StateForge](#why-stateforge)
 - [Mental Model](#mental-model)
 - [The 10-Second Proof](#the-10-second-proof)
+- [Removing It](#removing-it)
 - [Quick Start](#quick-start)
 - [Core Concepts](#core-concepts)
 - [Power Features](#power-features)
@@ -32,22 +35,19 @@
 
 ## Why StateForge
 
-StateForge is for Flutter features that should stay small without becoming
-implicit or hard to test. You can adopt it one feature at a time instead of
-replacing your whole app architecture.
+Most state libraries ask for an architectural commitment before they will hold a
+single value. StateForge asks for a class.
 
-[BLoC](https://pub.dev/packages/flutter_bloc) emphasizes explicit event-driven
-architecture. [Riverpod](https://pub.dev/packages/flutter_riverpod) emphasizes
-provider composition and strong dependency modeling.
-[Provider](https://pub.dev/packages/provider) keeps close to Flutter's widget
-tree. StateForge focuses on a narrower goal:
+A store is a plain Dart object: one piece of state, and methods that change it.
+Widgets read it with `context.watch` / `context.read`. **Nothing in your widget
+layer extends anything from this package**, so one feature can use StateForge
+without the rest of the app agreeing to it.
 
-> Build a feature in one or two files, with direct method calls, predictable
-> state transitions, scoped rebuilds, and first-class one-time effects.
-
-No event classes. No generated state classes. No `build_runner` step required.
-Stores are scoped by default and live in the widget tree. They are only global
-when you choose to mount them at the app root.
+That narrowness is the point, and it is also the limit. If what you actually
+need is an app-wide architecture — an event log, a dependency graph, a team-wide
+convention — [BLoC](https://pub.dev/packages/flutter_bloc) and
+[Riverpod](https://pub.dev/packages/flutter_riverpod) are built for that and
+StateForge is not trying to replace them.
 
 ## Mental Model
 
@@ -67,58 +67,86 @@ Repository / API
 
 ## The 10-Second Proof
 
-This is a complete login feature pattern. It keeps the state layer small while
-still separating state changes from one-time effects.
+A store is a class with methods. The widget is an ordinary `StatelessWidget`.
 
 ```dart
-// login_store.dart — your entire state layer for this feature
-class LoginStore extends Store<AsyncState<User>> {
-  LoginStore(this.api) : super(const Idle());
-  final AuthApi api;
+// counter_store.dart
+class CounterStore extends Store<int> {
+  CounterStore() : super(0);
 
-  Future<void> login(String email, String password) async {
-    emit(const Loading());
-    await guard(() async {
-      final user = await api.login(email, password);
-      emit(Success(user));
-      effect('navigate_home'); // fire-and-forget side effect
-    });
-  }
+  void increment() => emit(state + 1);
 }
 ```
 
 ```dart
-// login_page.dart — the UI
-class LoginPage extends StoreWidget<LoginStore, AsyncState<User>> {
+// counter_page.dart — no base class, no builder ceremony
+class CounterPage extends StatelessWidget {
+  const CounterPage({super.key});
+
   @override
-  Widget buildStore(BuildContext context, LoginStore store, AsyncState<User> state) {
-    return state.when(
-      idle:    ()      => LoginForm(onSubmit: store.login),
-      loading: ()      => const CircularProgressIndicator(),
-      success: (user)  => WelcomeScreen(user: user),
-      failure: (error) => ErrorView(error: error, onRetry: store.login),
+  Widget build(BuildContext context) {
+    final count = context.watch<CounterStore>().state;
+    return Scaffold(
+      body: Center(child: Text('$count')),
+      floatingActionButton: FloatingActionButton(
+        onPressed: context.read<CounterStore>().increment,
+        child: const Icon(Icons.add),
+      ),
     );
   }
 }
 ```
 
-That is the complete feature. **2 files. No event class. No generated state
-class. No `build_runner` step.**
+### Stores compose, and they clean up after themselves
 
-<details>
-<summary>See the BLoC equivalent for comparison</summary>
+This is the part worth adopting the package for. A store can derive its state
+from another store and own the subscriptions feeding it — no `dispose()` to
+write, no listener bookkeeping:
 
-Depending on team conventions, the same feature in BLoC often uses:
-- `login_event.dart` — LoginRequested event class
-- `login_state.dart` — LoginInitial, LoginLoading, LoginSuccess, LoginFailure
-- `login_bloc.dart` — Bloc class + `on<LoginRequested>()` handler
-- Optional DI setup — register bloc and repository
-- `login_page.dart` — `BlocProvider` + `BlocBuilder` + `BlocListener`
+```dart
+class TransactionStore extends Store<TransactionState>
+    with CompositedStore<TransactionState> {
+  final Database _db;
+  final WorkspaceStore _workspace;
+  List<Transaction> _rows = const [];
 
-StateForge compresses that shape when you want direct command methods instead of
-an event pipeline.
+  TransactionStore(this._db, this._workspace) : super(TransactionState()) {
+    // Re-derive whenever the active workspace changes.
+    watchStore(_workspace, (_) => _emitScoped());
 
-</details>
+    // keep() ties the subscription to this store's lifetime.
+    keep(_db.watchTransactions().listen((rows) {
+      _rows = rows;
+      _emitScoped();
+    }));
+  }
+
+  void _emitScoped() => emitSync(
+    state.withTransactions(
+      _rows.where((r) => r.workspaceId == _workspace.state.id).toList(),
+    ),
+  );
+}
+```
+
+`keep()` accepts any `StreamSubscription`, `Timer`, `Sink`, or object with a
+`dispose()`, and disposes it when the store goes. `watchStore()` unsubscribes
+the same way.
+
+## Removing It
+
+Worth asking of any dependency before you adopt it, so here is the honest
+answer: a `Store` is a plain Dart class from `state_forge_core`, and no widget
+of yours inherits from this package. Migrating away moves your logic as-is and
+changes only the widget-facing edge — `context.watch` becomes whatever the next
+library reads with.
+
+For Flutter APIs that want a `Listenable` (including `ValueListenableBuilder`),
+there is an adapter, which is also the seam to migrate through:
+
+```dart
+final listenable = counterStore.asListenable();
+```
 
 ---
 
@@ -127,7 +155,7 @@ an event pipeline.
 **1. Add to pubspec.yaml**
 ```yaml
 dependencies:
-  state_forge: ^0.1.8
+  state_forge: ^0.1.9
 ```
 
 **2. Define your Store**
@@ -160,22 +188,23 @@ ForgeMultiProvider(
 
 **4. Use it**
 ```dart
-// Option A: Extend StoreWidget (cleanest)
+// Option A: context.watch inline — the common case
+final count = context.watch<CounterStore>().state;
+Text('$count');
+
+// Option B: ForgeBuilder to scope the rebuild to a subtree
+ForgeBuilder<CounterStore, int>(
+  builder: (context, state, store) => Text('$state'),
+)
+
+// Option C: StoreWidget, a convenience base class for a page that is
+// entirely driven by one store. Optional — nothing else requires it.
 class CounterPage extends StoreWidget<CounterStore, int> {
   @override
   Widget buildStore(BuildContext context, CounterStore store, int count) {
     return Text('$count');
   }
 }
-
-// Option B: context.watch inline
-final count = context.watch<CounterStore>().state;
-Text('$count');
-
-// Option C: ForgeBuilder for granular control
-ForgeBuilder<CounterStore, int>(
-  builder: (context, state, store) => Text('$state'),
-)
 ```
 
 ---
@@ -359,8 +388,8 @@ If you need manual control, you can still call `hydrate()`, `persist()`, and
 
 ### CompositedStore — Clean Cross-Store Dependencies
 
-Cross-store dependencies are declared at the widget level and injected via
-constructor, which keeps store relationships visible and easy to test.
+Dependencies are injected through the constructor, which keeps store
+relationships visible and easy to test:
 
 ```dart
 // CartStore needs to know who's logged in
@@ -371,6 +400,20 @@ StoreProvider<CartStore>(
   ),
   child: const CartPage(),
 )
+```
+
+Injection alone gives you a reference. To make the dependent store *react*, add
+the `CompositedStore` mixin and use `watchStore` — the subscription is released
+when the store is disposed, so there is nothing to unwind by hand:
+
+```dart
+class CartStore extends Store<CartState> with CompositedStore<CartState> {
+  CartStore({required AuthStore authStore}) : super(const CartState()) {
+    watchStore(authStore, (auth) {
+      if (auth.state.isLoggedOut) clear();
+    });
+  }
+}
 ```
 
 Lifecycle rule: constructor-injected store dependencies should be stable for as
@@ -542,13 +585,6 @@ tools cannot model the same workflows.
 | Selective rebuilds | ✅ `ForgeSelector`, `context.select` | ✅ `BlocSelector` | ✅ `select` | ✅ `Selector` |
 | Pure Dart core | ✅ `state_forge_core` | ✅ | ✅ | 〜 Flutter-oriented |
 | Typical feature shape | Direct store methods | Event/command handlers | Provider graph | Notifier methods |
-
-Need to pass a store to a Flutter API that requires `Listenable`? Use the
-interop adapter:
-
-```dart
-final listenable = counterStore.asListenable();
-```
 
 ---
 
