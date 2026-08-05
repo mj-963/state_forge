@@ -43,11 +43,18 @@ Widgets read it with `context.watch` / `context.read`. **Nothing in your widget
 layer extends anything from this package**, so one feature can use StateForge
 without the rest of the app agreeing to it.
 
-That narrowness is the point, and it is also the limit. If what you actually
-need is an app-wide architecture — an event log, a dependency graph, a team-wide
-convention — [BLoC](https://pub.dev/packages/flutter_bloc) and
-[Riverpod](https://pub.dev/packages/flutter_riverpod) are built for that and
-StateForge is not trying to replace them.
+That is about what StateForge decides for you, not about how far it scales.
+Mount stores at the app root and you have app-wide state management. A shipping
+personal-finance app runs on it end to end: sixteen stores over a local
+database, with persistence, undo, cross-store composition, and no second state
+library.
+
+What it will not do is pick an architecture for you. There is no event log, no
+prescribed layering, no dependency graph to model — you bring that structure, or
+you do without it. If you want those decisions made and enforced for a team,
+[BLoC](https://pub.dev/packages/flutter_bloc) and
+[Riverpod](https://pub.dev/packages/flutter_riverpod) are built for exactly
+that, and StateForge is not trying to replace them.
 
 ## Mental Model
 
