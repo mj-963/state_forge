@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.1.4 - 2026-08-05
+
+### Added
+
+- `EffectStore<S, E>`, a `Store` whose `effect()` is narrowed to a declared
+  effect type `E`, plus a typed `Stream<E> get effects`.
+
 ## 0.1.3 - 2026-06-07
 
 ### Fixed

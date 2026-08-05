@@ -2,6 +2,24 @@
 
 All notable changes to this project will be documented in this file.
 
+## 0.2.0 - 2026-08-05
+
+### Added
+- `EffectStore<S, E>`, a `Store` that declares the type of one-time effect it
+  emits. `effect()` is narrowed to `E`, so passing an undeclared effect is a
+  compile error instead of a message that silently goes nowhere, and
+  `store.effects` exposes a typed `Stream<E>`. Pairs with the existing
+  type-filtering in `ForgeListener` / `ForgeConsumer`.
+
+### Fixed
+- README documented `StoreProvider.value(store: ...)`; the parameter is
+  `value:`, so the snippet did not compile.
+
+### Changed
+- README now leads with store composition (`watchStore`, `keep`) and an
+  explicit migration-away section, and no longer presents `StoreWidget` as the
+  primary way to read a store.
+
 ## 0.1.9 - 2026-07-22
 
 ### Fixed

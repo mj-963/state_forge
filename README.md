@@ -2,7 +2,7 @@
 
 [![Build Status](https://img.shields.io/badge/build-passing-brightgreen.svg)](https://github.com/mj-963/state_forge)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Pub Version](https://img.shields.io/badge/pub-v0.1.9-blue.svg)](https://pub.dev/packages/state_forge)
+[![Pub Version](https://img.shields.io/badge/pub-v0.2.0-blue.svg)](https://pub.dev/packages/state_forge)
 [![Selectors](https://img.shields.io/badge/context.select-tested-brightgreen.svg)](https://github.com/mj-963/state_forge/tree/main/test)
 
 **Feature-scoped stores for Flutter. They compose, they own their subscriptions,
@@ -155,7 +155,7 @@ final listenable = counterStore.asListenable();
 **1. Add to pubspec.yaml**
 ```yaml
 dependencies:
-  state_forge: ^0.1.9
+  state_forge: ^0.2.0
 ```
 
 **2. Define your Store**
@@ -278,18 +278,41 @@ stream so you never have to hack your state to trigger a one-time event.
 Effects are consumed once by listeners and are not replayed just because a
 widget rebuilds.
 
+Extend `EffectStore<S, E>` to declare what a store is allowed to emit. `E` is
+enforced by the compiler, so a typo or an effect from another feature is an
+error rather than a message that silently goes nowhere:
+
 ```dart
-// In your store
-Future<void> placeOrder() async {
-  emit(const Loading());
-  await guard(() async {
-    final order = await repo.place(state.cart);
-    emit(Success(order));
-    effect(OrderPlaced(order.id));      // fire-and-forget
-    effect(TrackAnalytics('purchase')); // multiple effects allowed
-  });
+sealed class CartEffect {}
+
+final class OrderPlaced extends CartEffect {
+  const OrderPlaced(this.orderId);
+  final String orderId;
 }
 
+final class TrackAnalytics extends CartEffect {
+  const TrackAnalytics(this.event);
+  final String event;
+}
+
+class CartStore extends EffectStore<AsyncState<Order>, CartEffect> {
+  CartStore(this.repo) : super(const Idle());
+  final CartRepository repo;
+
+  Future<void> placeOrder() async {
+    emit(const Loading());
+    await guard(() async {
+      final order = await repo.place(state.cart);
+      emit(Success(order));
+      effect(OrderPlaced(order.id));      // fire-and-forget
+      effect(TrackAnalytics('purchase')); // multiple effects allowed
+      effect('order_placed');             // compile error
+    });
+  }
+}
+```
+
+```dart
 // In your widget — reacts without rebuilding
 ForgeListener<CartStore, CartEffect>(
   onEffect: (context, effect) => switch (effect) {
@@ -299,6 +322,15 @@ ForgeListener<CartStore, CartEffect>(
   child: const CartPage(),
 )
 ```
+
+Because `E` is a sealed type, the `switch` above is exhaustive — add a new
+effect variant and every listener that does not handle it stops compiling.
+`ForgeListener` can also narrow to a single variant
+(`ForgeListener<CartStore, OrderPlaced>`), and `store.effects` is a `Stream<E>`
+for listening outside the widget tree.
+
+Plain `Store<S>` keeps the untyped `effect(Object)` channel, so nothing that
+already works needs to change.
 
 ### Scoped Lifecycle — Stores Die When Screens Die
 
@@ -320,7 +352,7 @@ StoreProvider<AuthStore>(
 
 // Shared: pass an existing instance to a subtree (wizard flows, sibling tabs)
 StoreProvider<CheckoutStore>.value(
-  store: existingCheckoutStore,
+  value: existingCheckoutStore,
   child: const StepThreePage(),
 )
 ```
@@ -581,7 +613,7 @@ tools cannot model the same workflows.
 | Code generation required | **No** | No | No | No |
 | Generated APIs available | No | Optional via ecosystem | Optional | No |
 | Async state helper | ✅ `AsyncState` | Common via custom states | ✅ `AsyncValue` | Custom |
-| One-time effects | ✅ Dedicated effect stream | Common via listener patterns | Common via listeners/ref | Custom |
+| One-time effects | ✅ Dedicated stream, typed via `EffectStore<S, E>` | Common via listener patterns | Common via listeners/ref | Custom |
 | Selective rebuilds | ✅ `ForgeSelector`, `context.select` | ✅ `BlocSelector` | ✅ `select` | ✅ `Selector` |
 | Pure Dart core | ✅ `state_forge_core` | ✅ | ✅ | 〜 Flutter-oriented |
 | Typical feature shape | Direct store methods | Event/command handlers | Provider graph | Notifier methods |
