@@ -5,6 +5,8 @@ All notable changes to this project will be documented in this file.
 ## 0.2.0 - 2026-08-05
 
 ### Added
+- Documented `optimistic()`, `LazyStoreProvider`, and `ForgeConsumer` in the
+  README. All three already existed and none were mentioned.
 - `EffectStore<S, E>`, a `Store` that declares the type of one-time effect it
   emits. `effect()` is narrowed to `E`, so passing an undeclared effect is a
   compile error instead of a message that silently goes nowhere, and
@@ -16,6 +18,9 @@ All notable changes to this project will be documented in this file.
   `value:`, so the snippet did not compile.
 
 ### Changed
+- Debug logging is now opt-in (`StateForge.debugMode = true`) rather than on
+  whenever assertions are enabled, and log messages are no longer built when it
+  is off. Via `state_forge_core` 0.1.4.
 - README now leads with store composition (`watchStore`, `keep`) and an
   explicit migration-away section, and no longer presents `StoreWidget` as the
   primary way to read a store.

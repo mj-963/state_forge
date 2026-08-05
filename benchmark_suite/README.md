@@ -16,6 +16,18 @@ The suite compares StateForge scenarios with comparable
 scenarios are implemented. Treat the results as local engineering signals, not
 universal performance claims.
 
+## Reading the latency results fairly
+
+Two things skew this comparison if you leave them alone:
+
+- **Debug logging.** StateForge prints every state transition while assertions
+  are enabled, which is always the case under `flutter test`. BLoC and Riverpod
+  print nothing. Logging alone roughly doubled StateForge's measured time, so
+  the latency test sets `StateForge.debugMode = false`.
+- **Matching the read API.** `context.watch` rebuilds the provider, while
+  `BlocBuilder` and `Consumer` rebuild a leaf. `ForgeBuilder` is the
+  like-for-like comparison, so the suite measures both.
+
 ## Running
 
 From this directory:

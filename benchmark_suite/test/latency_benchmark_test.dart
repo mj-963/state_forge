@@ -31,6 +31,12 @@ class RPNotifier extends rp.Notifier<LatencyState> {
 void main() {
   const int iterations = 1000;
 
+  // StateForge logs every transition when assertions are enabled, which is the
+  // case under `flutter test`. BLoC and Riverpod log nothing, so leave it off
+  // to compare like with like.
+  setUp(() => StateForge.debugMode = false);
+  tearDown(() => StateForge.debugMode = true);
+
   testWidgets('StateForge Latency Benchmark', (tester) async {
     final store = SFStore();
     await tester.pumpWidget(
@@ -52,6 +58,31 @@ void main() {
     // ignore: avoid_print
     print(
         '[StateForge] Time for $iterations updates: ${stopwatch.elapsedMilliseconds}ms');
+  });
+
+  // context.watch above rebuilds the provider itself, which is the heaviest
+  // read path. ForgeBuilder subscribes at the leaf, which is the like-for-like
+  // comparison against BlocBuilder and Consumer below.
+  testWidgets('StateForge (ForgeBuilder) Latency Benchmark', (tester) async {
+    final store = SFStore();
+    await tester.pumpWidget(
+      StoreProvider<SFStore>.value(
+        value: store,
+        child: ForgeBuilder<SFStore, LatencyState>(
+          builder: (context, state, _) => const SizedBox(),
+        ),
+      ),
+    );
+
+    final stopwatch = Stopwatch()..start();
+    for (int i = 0; i < iterations; i++) {
+      store.increment();
+      await tester.pump(Duration.zero);
+    }
+    stopwatch.stop();
+    // ignore: avoid_print
+    print(
+        '[StateForge/ForgeBuilder] Time for $iterations updates: ${stopwatch.elapsedMilliseconds}ms');
   });
 
   testWidgets('Riverpod Latency Benchmark', (tester) async {

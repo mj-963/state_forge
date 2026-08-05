@@ -35,20 +35,22 @@ abstract interface class StateForgeDiagnostics {
 class StateForge {
   StateForge._();
 
-  /// Whether to print debug information (transitions, effects) to the console.
+  /// Whether to print every state transition and effect to the console.
   ///
-  /// Enabled only when Dart assertions are enabled, so it is automatically
-  /// disabled in normal release builds.
-  static bool debugMode = _assertionsEnabled();
-
-  static bool _assertionsEnabled() {
-    var enabled = false;
-    assert(() {
-      enabled = true;
-      return true;
-    }());
-    return enabled;
-  }
+  /// Off by default: it is useful while debugging one feature, but as a default
+  /// it floods test output and costs a `toString()` of every state on every
+  /// emit. Turn it on when you want it, and only where you want it:
+  ///
+  /// ```dart
+  /// void main() {
+  ///   StateForge.debugMode = true;
+  ///   runApp(const MyApp());
+  /// }
+  /// ```
+  ///
+  /// Printing is additionally guarded by an assertion, so enabling this in a
+  /// release build still prints nothing.
+  static bool debugMode = false;
 
   /// Global error handler hook.
   ///

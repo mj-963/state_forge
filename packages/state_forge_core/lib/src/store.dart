@@ -68,7 +68,9 @@ abstract class Store<S> {
 
     final oldState = _state;
 
-    _debugLog('[StateForge] $runtimeType: $oldState -> $newState');
+    if (StateForge.debugMode) {
+      _debugLog('[StateForge] $runtimeType: $oldState -> $newState');
+    }
     StateForge.diagnostics?.recordTransition(this, oldState, newState);
     StateForge.observer?.handleEmit(this, oldState, newState);
 
@@ -92,7 +94,9 @@ abstract class Store<S> {
 
     final oldState = _state;
 
-    _debugLog('[StateForge] $runtimeType (Sync): $oldState -> $newState');
+    if (StateForge.debugMode) {
+      _debugLog('[StateForge] $runtimeType (Sync): $oldState -> $newState');
+    }
     StateForge.diagnostics?.recordTransition(this, oldState, newState);
     StateForge.observer?.handleEmit(this, oldState, newState);
 
@@ -104,7 +108,9 @@ abstract class Store<S> {
   @protected
   void effect(Object effect) {
     if (!_disposed) {
-      _debugLog('[StateForge] $runtimeType Effect: $effect');
+      if (StateForge.debugMode) {
+        _debugLog('[StateForge] $runtimeType Effect: $effect');
+      }
       StateForge.diagnostics?.recordEffect(this, effect);
       StateForge.observer?.handleEffect(this, effect);
       _effectController.add(effect);

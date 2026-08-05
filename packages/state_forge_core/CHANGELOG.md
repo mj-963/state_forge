@@ -7,6 +7,20 @@
 - `EffectStore<S, E>`, a `Store` whose `effect()` is narrowed to a declared
   effect type `E`, plus a typed `Stream<E> get effects`.
 
+### Changed
+
+- **`StateForge.debugMode` now defaults to `false`.** It previously defaulted to
+  on whenever assertions were enabled, so every debug build and every
+  `flutter test` run printed a line per state transition. That flooded test
+  output and roughly doubled update cost in debug. Set
+  `StateForge.debugMode = true` to restore the old behaviour.
+
+### Fixed
+
+- Transition and effect log messages were interpolated on every emit before the
+  debug flag was checked, so a `toString()` of both states ran even when logging
+  was off, including in release builds. The call sites are now guarded.
+
 ## 0.1.3 - 2026-06-07
 
 ### Fixed

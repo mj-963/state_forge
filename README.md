@@ -336,8 +336,47 @@ effect variant and every listener that does not handle it stops compiling.
 (`ForgeListener<CartStore, OrderPlaced>`), and `store.effects` is a `Stream<E>`
 for listening outside the widget tree.
 
+When a widget needs to both rebuild on state *and* react to effects, use
+`ForgeConsumer` instead of nesting a builder inside a listener:
+
+```dart
+ForgeConsumer<CartStore, AsyncState<Order>, CartEffect>(
+  onEffect: (context, effect) => switch (effect) {
+    OrderPlaced(:final orderId) => context.go('/confirmation/$orderId'),
+    TrackAnalytics(:final event) => Analytics.track(event),
+  },
+  builder: (context, state, store) => CartView(state: state),
+)
+```
+
 Plain `Store<S>` keeps the untyped `effect(Object)` channel, so nothing that
 already works needs to change.
+
+### Optimistic Updates — Roll Back on Failure
+
+`optimistic()` applies a state immediately, then reverts it if the work throws.
+The rollback target defaults to the state you had before, so the common case is
+one call:
+
+```dart
+Future<void> toggleLike(Post post) {
+  return optimistic(
+    state.withLiked(post.id),      // shown immediately
+    api.like(post.id),             // if this throws, the state reverts
+  );
+}
+
+// Or revert to a specific state instead of the previous one
+Future<void> submit(Draft draft) {
+  return optimistic(
+    state.sending(),
+    api.send(draft),
+    onFailure: state.failed(),
+  );
+}
+```
+
+The error is rethrown after the rollback, so callers can still react to it.
 
 ### Scoped Lifecycle — Stores Die When Screens Die
 
@@ -361,6 +400,13 @@ StoreProvider<AuthStore>(
 StoreProvider<CheckoutStore>.value(
   value: existingCheckoutStore,
   child: const StepThreePage(),
+)
+
+// Deferred: not constructed until something first reads it. For expensive
+// stores behind a route the user may never open.
+LazyStoreProvider<ReportsStore>(
+  create: (context) => ReportsStore(context.read<TransactionStore>()),
+  child: const ReportsPage(),
 )
 ```
 
@@ -579,16 +625,23 @@ forgeTest<CounterStore, int>(
 StateForge stores are pure Dart listenables, and the Flutter package exposes them
 through `InheritedModel` for scoped widget-tree access.
 
-StateForge minimizes rebuild work by:
+StateForge limits rebuild work by batching asynchronous notifications into a
+microtask, resolving stores through scoped inherited widgets rather than global
+listeners, rebuilding selector widgets only when the selected value changes, and
+keeping one-time effects off the state path entirely.
 
-- Batching asynchronous store notifications into a microtask
-- Looking up stores through scoped inherited widgets instead of global listeners
-- Rebuilding selector widgets only when their selected value changes
-- Keeping one-time effects separate from state so effects do not force state rebuilds
+The bundled
+[`benchmark_suite/`](https://github.com/mj-963/state_forge/tree/main/benchmark_suite)
+runs the same scenarios against BLoC and Riverpod. On 1,000 updates driving a
+subscribed widget, `ForgeBuilder` is on par with `BlocBuilder` and ahead of
+Riverpod's `Consumer`; after 1,000 *unrelated* updates all three rebuild exactly
+once. Reading through `context.watch` costs more than either, because it rebuilds
+the provider rather than a leaf — reach for `ForgeBuilder` or `ForgeSelector` on
+hot paths.
 
-Focused rebuild behavior is covered by [tests](https://github.com/mj-963/state_forge/tree/main/test).
-Local benchmark and stress-test scenarios live in
-[`benchmark_suite/`](https://github.com/mj-963/state_forge/tree/main/benchmark_suite).
+These are local engineering signals on one machine, not universal claims. The
+suite ships in the repo with the competing implementations beside it, so run it
+yourself.
 
 ---
 

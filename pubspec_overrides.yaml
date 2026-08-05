@@ -1,0 +1,5 @@
+# Resolve the sibling core package from source so local changes are exercised
+# by tests instead of silently testing the last published version.
+dependency_overrides:
+  state_forge_core:
+    path: packages/state_forge_core
