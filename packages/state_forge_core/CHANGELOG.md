@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.1.5 - 2026-08-05
+
+### Fixed
+
+- `optimistic()` reported a rolled-back failure to `StateForge.onError` but not
+  to `StateForge.observer`, so those errors were missing from the audit trail
+  that `guard()` populated. Both are now notified.
+
 ## 0.1.4 - 2026-08-05
 
 ### Added

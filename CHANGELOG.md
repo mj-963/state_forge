@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file.
 
+## 0.2.1 - 2026-08-05
+
+### Fixed
+
+- Optimistic rollbacks now reach `ForgeObserver`, via `state_forge_core` 0.1.5.
+- Corrected README claims that did not hold: the `Listenable` adapter does not
+  satisfy `ValueListenableBuilder` (it is not a `ValueListenable`), the plain
+  unit-test example asserted on notifications that `emit` had coalesced away,
+  and the intro overstated the widget-layer claim while `StoreWidget` exists.
+
 ## 0.2.0 - 2026-08-05
 
 ### Added

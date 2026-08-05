@@ -119,6 +119,25 @@ void main() {
     expect(seen, hasLength(1));
   });
 
+  test('an optimistic rollback reports to the observer', () async {
+    final errors = <Object>[];
+    StateForge.observer = ForgeObserver(
+      onError: (store, error, stack) => errors.add(error),
+    );
+    addTearDown(() => StateForge.observer = null);
+
+    final store = FlakyStore();
+    addTearDown(store.dispose);
+
+    await expectLater(
+      store.save(Future<void>.error(StateError('boom'))),
+      throwsA(isA<StateError>()),
+    );
+
+    expect(store.state, 0, reason: 'rolled back');
+    expect(errors, hasLength(1));
+  });
+
   test('untyped effectStream still observes the same effects', () async {
     final store = CartStore();
     addTearDown(store.dispose);
@@ -132,4 +151,11 @@ void main() {
 
     expect(raw.single, isA<OrderPlaced>());
   });
+}
+
+// Regression: a rolled-back optimistic update must reach ForgeObserver, the
+// same as an error caught by guard().
+class FlakyStore extends Store<int> {
+  FlakyStore() : super(0);
+  Future<void> save(Future<void> action) => optimistic(1, action);
 }

@@ -130,6 +130,7 @@ abstract class Store<S> {
       return await action;
     } catch (e, stack) {
       emit(onFailure ?? previousState);
+      StateForge.observer?.handleError(this, e, stack);
       if (StateForge.onError != null) {
         StateForge.onError!(e, stack);
       }
