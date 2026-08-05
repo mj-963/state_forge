@@ -2,11 +2,11 @@
 
 [![Build Status](https://img.shields.io/badge/build-passing-brightgreen.svg)](https://github.com/mj-963/state_forge)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Pub Version](https://img.shields.io/badge/pub-v0.2.0-blue.svg)](https://pub.dev/packages/state_forge)
+[![Pub Version](https://img.shields.io/badge/pub-v0.2.1-blue.svg)](https://pub.dev/packages/state_forge)
 [![Selectors](https://img.shields.io/badge/context.select-tested-brightgreen.svg)](https://github.com/mj-963/state_forge/tree/main/test)
 
 **Feature-scoped stores for Flutter. They compose, they own their subscriptions,
-and your widgets never inherit from them.**
+and your widgets don't have to inherit from them.**
 
 > Plain Dart classes. Direct method calls. No event classes, no code generation,
 > no `build_runner`.
@@ -39,9 +39,10 @@ Most state libraries ask for an architectural commitment before they will hold a
 single value. StateForge asks for a class.
 
 A store is a plain Dart object: one piece of state, and methods that change it.
-Widgets read it with `context.watch` / `context.read`. **Nothing in your widget
-layer extends anything from this package**, so one feature can use StateForge
-without the rest of the app agreeing to it.
+Widgets read it with `context.watch` / `context.read`. **No widget of yours has
+to extend anything from this package**, so one feature can use StateForge
+without the rest of the app agreeing to it. (`StoreWidget` exists as a
+convenience if you want it — it is never required.)
 
 That is about what StateForge decides for you, not about how far it scales.
 Mount stores at the app root and you have app-wide state management. A shipping
@@ -49,12 +50,16 @@ personal-finance app runs on it end to end: sixteen stores over a local
 database, with persistence, undo, cross-store composition, and no second state
 library.
 
-What it will not do is pick an architecture for you. There is no event log, no
-prescribed layering, no dependency graph to model — you bring that structure, or
-you do without it. If you want those decisions made and enforced for a team,
+What it will not do is pick an architecture for you. Every transition, effect,
+and error is observable through [`ForgeObserver`](#global-auditing--forgeobserver),
+so auditing is covered — but intent is not modelled as data the way BLoC's
+events are, no dependency graph works out invalidation on your behalf, and
+nothing enforces a single shape across a team. You bring that structure, or you
+do without it. Those are real things to want, and if you want them decided and
+enforced rather than agreed,
 [BLoC](https://pub.dev/packages/flutter_bloc) and
 [Riverpod](https://pub.dev/packages/flutter_riverpod) are built for exactly
-that, and StateForge is not trying to replace them.
+that.
 
 ## Mental Model
 
@@ -143,13 +148,14 @@ the same way.
 ## Removing It
 
 Worth asking of any dependency before you adopt it, so here is the honest
-answer: a `Store` is a plain Dart class from `state_forge_core`, and no widget
-of yours inherits from this package. Migrating away moves your logic as-is and
-changes only the widget-facing edge — `context.watch` becomes whatever the next
-library reads with.
+answer: a `Store` is a plain Dart class from `state_forge_core`, and unless you
+opted into `StoreWidget`, no widget of yours inherits from this package.
+Migrating away moves your logic as-is and changes only the widget-facing edge —
+`context.watch` becomes whatever the next library reads with.
 
-For Flutter APIs that want a `Listenable` (including `ValueListenableBuilder`),
-there is an adapter, which is also the seam to migrate through:
+For Flutter APIs that take a `Listenable` — `ListenableBuilder`,
+`AnimatedBuilder`, `Listenable.merge` — there is an adapter, which is also the
+seam to migrate through:
 
 ```dart
 final listenable = counterStore.asListenable();
@@ -162,7 +168,7 @@ final listenable = counterStore.asListenable();
 **1. Add to pubspec.yaml**
 ```yaml
 dependencies:
-  state_forge: ^0.2.0
+  state_forge: ^0.2.1
 ```
 
 **2. Define your Store**
@@ -244,7 +250,7 @@ state.when(
   failure: (error)    => RetryButton(onTap: store.load),
 );
 
-// Or use .map() for optional handling
+// Or maybeWhen / maybeMap when you only care about some cases
 state.maybeWhen(
   success: (products) => ProductGrid(products: products),
   orElse:  ()         => const LoadingSpinner(),
@@ -598,6 +604,9 @@ test('login emits Loading then Success', () async {
   store.addListener(() => states.add(store.state));
 
   await store.login('user@example.com', 'password');
+  // emit() coalesces notifications into a microtask, so let the queue drain
+  // before asserting. Use emitSync() if you need each one delivered eagerly.
+  await Future<void>.delayed(Duration.zero);
 
   expect(states[0], isA<Loading>());
   expect(states[1], isA<Success<User>>());
